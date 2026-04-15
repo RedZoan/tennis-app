@@ -670,6 +670,57 @@
             a.click();
         }
 
+        function exportMatchCSV(matchId) {
+            const m = allSeasonMatches.find(x => x.id === matchId);
+            if (!m) return;
+
+            // For GitHub matches, apply any local court override
+            const overrides = loadCourtOverrides();
+            const courts = (m._gh && overrides[matchId]) ? overrides[matchId] : (m.courts || null);
+
+            const ss = m.setScores || [{us:0,them:0},{us:0,them:0},{us:0,them:0}];
+            const opp = m.opponent;
+
+            let csv = `\uFEFFTennis Match Report,Date: ${m.date},Opponent: ${opp}\n\n`;
+
+            csv += `Final Score Summary\n`;
+            csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
+            csv += `Our Team (Brandon/Maddie),${m.setsWon.us},${formatCsvCell(ss[0].us+'-'+ss[0].them)},${formatCsvCell(ss[1].us+'-'+ss[1].them)},${formatCsvCell(ss[2].us+'-'+ss[2].them)}\n`;
+            csv += `${opp},${m.setsWon.them},${formatCsvCell(ss[0].them+'-'+ss[0].us)},${formatCsvCell(ss[1].them+'-'+ss[1].us)},${formatCsvCell(ss[2].them+'-'+ss[2].us)}\n\n`;
+
+            if (courts && courts.some(c => c.result)) {
+                csv += `Court Results\n`;
+                csv += `Court,Description,Type,Note,Result\n`;
+                courts.forEach(c => {
+                    csv += `${c.label || ''},${c.desc || ''},${c.type || ''},${c.note || ''},${c.result || ''}\n`;
+                });
+                csv += '\n';
+            }
+
+            csv += `Player Stats\n`;
+            csv += `Player,Aces,Errors,Double-Faults,Winners\n`;
+            const ps = m.playerStats || {};
+            for (const p of ['Brandon', 'Maddie', 'OppBoy', 'OppGirl']) {
+                const s = ps[p] || {ace:0, fault:0, df:0, pointWon:0};
+                csv += `${p},${s.ace},${s.fault},${s.df},${s.pointWon}\n`;
+            }
+
+            csv += `\nTimeline\n`;
+            csv += `Timestamp,Player,Action,Game Score,Set Score\n`;
+            const actionMap = { pointWon: 'Winner', df: 'Double-Fault', fault: 'Error', ace: 'Ace' };
+            [...(m.timeline || [])].reverse().forEach(h => {
+                const action = actionMap[h.type] || (h.type.charAt(0).toUpperCase() + h.type.slice(1));
+                csv += `${h.timestamp},${h.player},${action},${formatCsvCell(h.csvGameScore)},${formatCsvCell(h.csvSetScore)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url;
+            a.download = `match_vs_${opp.replace(/\s+/g,'_')}_${m.date}.csv`;
+            a.click();
+        }
+
         function showResetModal() { document.getElementById('modal-reset').classList.remove('hidden'); }
         function closeModal()     { document.getElementById('modal-reset').classList.add('hidden'); }
         function resetMatch() {
@@ -970,6 +1021,7 @@
 
             const editCourtsLabel = m.courts ? 'Edit Courts' : 'Add Courts';
             const actionsHtml = '<div class="flex flex-col gap-1.5 items-end">' +
+                '<button onclick="exportMatchCSV(' + m.id + ')" class="text-blue-400 text-[10px] font-bold bg-blue-500/10 px-3 py-2 rounded-lg">Export CSV</button>' +
                 '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
                 (m._gh ? '<span class="text-[10px] text-slate-600 italic text-right pr-1">From GitHub</span>'
                        : '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>') +
@@ -1201,6 +1253,7 @@
                 OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
             };
             let timeline = [];
+            let courts   = [];
 
             const actionMap = { 'Ace':'ace', 'Winner':'pointWon', 'Error':'fault', 'Double-Fault':'df' };
 
@@ -1212,6 +1265,7 @@
 
                 if (line === 'Final Score Summary') { section = 'score';    continue; }
                 if (line === 'Player Stats')         { section = 'stats';    continue; }
+                if (line === 'Court Results')        { section = 'courts';   continue; }
                 if (line === 'Timeline')             { section = 'timeline'; continue; }
 
                 const cells = parseLine(line);
@@ -1241,6 +1295,17 @@
                     }
                 }
 
+                if (section === 'courts') {
+                    if (cells[0] === 'Court' || !cells[0]) continue;
+                    courts.push({
+                        label:  cells[0],
+                        desc:   cells[1] || '',
+                        type:   cells[2] || 'singles',
+                        note:   cells[3] || null,
+                        result: cells[4] || null
+                    });
+                }
+
                 if (section === 'timeline') {
                     if (cells[0] === 'Timestamp' || !cells[0] || !cells[1]) continue;
                     const type      = actionMap[cells[2]] || 'ace';
@@ -1263,7 +1328,8 @@
             timeline.reverse();
 
             const result = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?';
-            return { id: Date.now(), date, opponent, result, setsWon, setScores, playerStats, timeline };
+            return { id: Date.now(), date, opponent, result, setsWon, setScores, playerStats, timeline,
+                     courts: courts.length ? courts : null };
         }
 
         // ── Toast ─────────────────────────────────────────────────
