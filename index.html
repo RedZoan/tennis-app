@@ -697,6 +697,18 @@
             localStorage.setItem(SEASON_KEY, JSON.stringify(data));
         }
 
+        // ── Court overrides (for GitHub-sourced matches) ──────────
+        const COURTS_KEY = 'tennisCourtOverrides';
+        function loadCourtOverrides() {
+            try { return JSON.parse(localStorage.getItem(COURTS_KEY)) || {}; }
+            catch { return {}; }
+        }
+        function saveCourtOverride(matchId, courts) {
+            const ov = loadCourtOverrides();
+            ov[matchId] = courts;
+            localStorage.setItem(COURTS_KEY, JSON.stringify(ov));
+        }
+
         // ── GitHub match source ───────────────────────────────────
         const GH_OWNER  = 'RedZoan';  // ← fill this in
         const GH_REPO   = 'tennis-app';
@@ -797,10 +809,15 @@
 
         function renderSeasonMain(ghMatches = []) {
             const { matches: localMatches } = loadSeasonData();
-            // GitHub matches take priority; local matches not on GitHub are appended
-            const ghKeys   = new Set(ghMatches.map(m => m.date + '|' + m.opponent.trim().toLowerCase()));
+            const overrides = loadCourtOverrides();
+            // Apply any saved court overrides to GitHub matches
+            const mergedGh = ghMatches.map(m =>
+                overrides[m.id] ? { ...m, courts: overrides[m.id] } : m
+            );
+            // Local matches not on GitHub are appended (dedup by date+opponent)
+            const ghKeys    = new Set(mergedGh.map(m => m.date + '|' + m.opponent.trim().toLowerCase()));
             const localOnly = localMatches.filter(m => !ghKeys.has(m.date + '|' + m.opponent.trim().toLowerCase()));
-            allSeasonMatches = [...ghMatches, ...localOnly].sort((a, b) => new Date(b.date) - new Date(a.date));
+            allSeasonMatches = [...mergedGh, ...localOnly].sort((a, b) => new Date(b.date) - new Date(a.date));
             const matches = allSeasonMatches;
             document.getElementById('season-title').innerText = 'Season';
             document.getElementById('season-back-btn').classList.add('hidden');
@@ -952,12 +969,11 @@
             if (!scoreSubtitle) scoreSubtitle = m.setsWon.us + '–' + m.setsWon.them + ' sets';
 
             const editCourtsLabel = m.courts ? 'Edit Courts' : 'Add Courts';
-            const actionsHtml = m._gh
-                ? '<span class="text-[10px] text-slate-600 italic px-2 py-2">From GitHub</span>'
-                : '<div class="flex flex-col gap-1.5 items-end">' +
-                  '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
-                  '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>' +
-                  '</div>';
+            const actionsHtml = '<div class="flex flex-col gap-1.5 items-end">' +
+                '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
+                (m._gh ? '<span class="text-[10px] text-slate-600 italic text-right pr-1">From GitHub</span>'
+                       : '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>') +
+                '</div>';
 
             document.getElementById('season-content').innerHTML =
                 '<div class="flex items-start justify-between mb-5">' +
@@ -1042,13 +1058,15 @@
         }
 
         function showEditCourtsModal(matchId) {
-            const { matches } = loadSeasonData();
-            const m = matches.find(x => x.id === matchId);
+            const m = allSeasonMatches.find(x => x.id === matchId)
+                   || (() => { const { matches } = loadSeasonData(); return matches.find(x => x.id === matchId); })();
             if (!m) return;
             qaEditMatchId = matchId;
             qaCourtSelections = [null, null, null, null, null, null, null, null, null];
-            if (m.courts) {
-                m.courts.forEach((c, i) => { qaCourtSelections[i] = c.result; });
+            // Pre-fill from override (GitHub) or stored courts (local)
+            const existingCourts = m._gh ? (loadCourtOverrides()[matchId] || m.courts) : m.courts;
+            if (existingCourts) {
+                existingCourts.forEach((c, i) => { qaCourtSelections[i] = c.result; });
             }
             document.getElementById('qa-modal-title').innerText  = m.opponent + ' — Courts';
             document.getElementById('qa-header-fields').classList.add('hidden');
@@ -1077,15 +1095,21 @@
 
             // ── Edit mode: update courts on an existing match ──────
             if (qaEditMatchId !== null) {
-                const data = loadSeasonData();
-                const idx  = data.matches.findIndex(x => x.id === qaEditMatchId);
-                if (idx !== -1) {
-                    data.matches[idx].courts = courts;
-                    // If the match had no tracked stats, also update overall result
-                    if (!data.matches[idx].timeline || data.matches[idx].timeline.length === 0) {
-                        data.matches[idx].result = won > lost ? 'W' : lost > won ? 'L' : '?';
+                const ghM = allSeasonMatches.find(x => x.id === qaEditMatchId && x._gh);
+                if (ghM) {
+                    // GitHub match — save courts as a local override
+                    saveCourtOverride(qaEditMatchId, courts);
+                } else {
+                    // Local match — update in localStorage directly
+                    const data = loadSeasonData();
+                    const idx  = data.matches.findIndex(x => x.id === qaEditMatchId);
+                    if (idx !== -1) {
+                        data.matches[idx].courts = courts;
+                        if (!data.matches[idx].timeline || data.matches[idx].timeline.length === 0) {
+                            data.matches[idx].result = won > lost ? 'W' : lost > won ? 'L' : '?';
+                        }
+                        saveSeasonData(data);
                     }
-                    saveSeasonData(data);
                 }
                 const editId = qaEditMatchId;
                 closeQuickAddModal();
