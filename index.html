@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA / Add to Home Screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Match Tracker">
+    <meta name="theme-color" content="#10b981">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon.svg">
+    <title>Tennis Match Tracker V3 - MPSSAA Edition</title>
+    <script src="assets/tailwind.js"></script>
+    <link rel="stylesheet" href="assets/inter.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .player-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-active:active { transform: scale(0.95); }
+        button { touch-action: manipulation; }
+
+        .ace-btn   { background-color: #10b981; color: #064e3b; }
+        .point-btn { background-color: #3b82f6; color: #1e3a8a; }
+        .fault-btn { background-color: #ef4444; color: #7f1d1d; }
+        .df-btn    { background-color: #f97316; color: #7c2d12; }
+
+        .history-scroll::-webkit-scrollbar { width: 4px; }
+        .history-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        input::placeholder { color: #64748b; }
+
+        /* ── Hold-to-confirm Undo ──────────────────────────────── */
+        #undo-btn {
+            position: relative;
+            overflow: hidden;
+            min-width: 110px;
+        }
+        #undo-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 3px; width: 0%;
+            background: #10b981;
+            transition: none;
+        }
+        #undo-btn.undo-holding::after {
+            width: 100%;
+            transition: width 0.6s linear;
+        }
+
+        /* ── Outdoor / high-contrast mode ─────────────────────── */
+        body.outdoor { background-color: #000; }
+        body.outdoor header { background: #111 !important; border-color: #444 !important; }
+        body.outdoor .scoreboard { background: #111 !important; border-color: #444 !important; }
+        body.outdoor .player-card { background: #111 !important; border-color: #555 !important; box-shadow: none; }
+        body.outdoor .ace-btn   { background-color: #00e87a; color: #000; }
+        body.outdoor .point-btn { background-color: #38bdf8; color: #000; }
+        body.outdoor .fault-btn { background-color: #ff4444; color: #fff; }
+        body.outdoor .df-btn    { background-color: #fb923c; color: #000; }
+        body.outdoor #game-score-us,
+        body.outdoor #game-score-them { font-size: 4rem !important; }
+        body.outdoor .bottom-bar { background: rgba(0,0,0,0.98) !important; border-color: #333 !important; }
+        #outdoor-btn.active { color: #fbbf24; border-color: #fbbf24; }
+
+        /* ── Landscape phone layout ────────────────────────────── */
+        @media (orientation: landscape) and (max-height: 600px) {
+            body { padding: 0.25rem 0.5rem !important; }
+            header { padding: 0.4rem 0.75rem !important; margin-bottom: 0.35rem !important; }
+            header h1 { font-size: 0.9rem !important; }
+            .opp-row { margin-top: 0.1rem !important; }
+            .scoreboard { padding: 0.35rem 0.75rem !important; margin-bottom: 0.35rem !important; }
+            #game-score-us, #game-score-them { font-size: 2rem !important; line-height: 1 !important; }
+            #main-grid { grid-template-columns: repeat(2, 1fr) !important; padding-bottom: 5.5rem !important; }
+            .player-card { padding: 0.5rem !important; }
+            .stat-grid { margin-bottom: 0.35rem !important; }
+            .stat-num { font-size: 1rem !important; }
+            .bottom-bar { padding: 0.3rem 0.75rem !important; gap: 0.25rem !important; }
+            .timeline-label, .swipe-hint { display: none !important; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 p-2 sm:p-4">
+
+    <!-- Header & Match Settings -->
+    <header class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 mb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-xl font-black text-white uppercase tracking-tighter leading-none">Match Tracker <span class="text-emerald-500">V3</span></h1>
+                <div class="opp-row flex items-center gap-2 mt-2">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Opponent:</span>
+                    <input id="opp-school" type="text" placeholder="Enter School Name..."
+                           class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto flex-wrap">
+                <button id="outdoor-btn" onclick="toggleOutdoor()" title="Outdoor / High Contrast"
+                        class="flex-none bg-slate-800 text-slate-400 text-base font-bold px-3 py-2 rounded-lg border border-slate-700 leading-none">☀</button>
+                <button onclick="showSaveMatchModal()" class="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors">Save Match</button>
+                <button onclick="showSeasonView()" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors border border-slate-600">Season</button>
+                <button onclick="exportCSV()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors shadow-lg">Export CSV</button>
+                <button onclick="showResetModal()" class="flex-1 sm:flex-none bg-slate-800 text-slate-400 text-[10px] font-bold px-4 py-2 rounded-lg uppercase border border-slate-700">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Scoreboard -->
+    <section class="scoreboard player-card border-2 border-emerald-500/30 rounded-3xl p-4 mb-4">
+        <div class="grid grid-cols-3 items-center text-center">
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold text-slate-500 uppercase mb-1">Our Team</span>
+                <div id="sets-us" class="text-xs font-black text-emerald-500">SETS: 0</div>
+                <div id="game-score-us" class="text-5xl font-black text-white">0</div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div id="match-status" class="bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold uppercase mb-2">Set 1</div>
+                <div class="flex gap-2">
+                    <div id="set1-score" class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded text-[10px] font-bold leading-tight">0-0</div>
+                    <div id="set2-score" class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded text-[10px] font-bold leading-tight">0-0</div>
+                    <div id="set3-score" class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded text-[10px] font-bold leading-tight">0-0</div>
+                </div>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold text-slate-500 uppercase mb-1">Opponents</span>
+                <div id="sets-them" class="text-xs font-black text-red-500">SETS: 0</div>
+                <div id="game-score-them" class="text-5xl font-black text-white">0</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scoring Grid -->
+    <main id="main-grid" class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-3 pb-32">
+
+        <!-- Brandon -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Our Team</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Brandon</span>
+            </div>
+            <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="brandon-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="brandon-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="brandon-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="brandon-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('Brandon', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace</button>
+                <button onclick="handlePoint('Brandon', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Winner</button>
+                <button onclick="handlePoint('Brandon', 'fault', 'them')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase">Error</button>
+                <button onclick="handlePoint('Brandon', 'df', 'them')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase">D-Fault</button>
+            </div>
+        </div>
+
+        <!-- Maddie -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Our Team</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Maddie</span>
+            </div>
+            <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="maddie-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="maddie-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="maddie-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="maddie-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('Maddie', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace</button>
+                <button onclick="handlePoint('Maddie', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Winner</button>
+                <button onclick="handlePoint('Maddie', 'fault', 'them')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase">Error</button>
+                <button onclick="handlePoint('Maddie', 'df', 'them')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase">D-Fault</button>
+            </div>
+        </div>
+
+        <!-- Opponent Boy -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Opponents</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Opp. Boy</span>
+            </div>
+            <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppboy-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="oppboy-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppboy-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="oppboy-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('OppBoy', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace</button>
+                <button onclick="handlePoint('OppBoy', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Winner</button>
+                <button onclick="handlePoint('OppBoy', 'fault', 'us')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Error</button>
+                <button onclick="handlePoint('OppBoy', 'df', 'us')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
+            </div>
+        </div>
+
+        <!-- Opponent Girl -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-tight">Opponents</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Opp. Girl</span>
+            </div>
+            <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppgirl-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="oppgirl-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppgirl-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="oppgirl-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('OppGirl', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace</button>
+                <button onclick="handlePoint('OppGirl', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Winner</button>
+                <button onclick="handlePoint('OppGirl', 'fault', 'us')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Error</button>
+                <button onclick="handlePoint('OppGirl', 'df', 'us')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Undo & Recent Feed -->
+    <div class="bottom-bar fixed bottom-0 left-0 right-0 p-4 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex flex-col gap-2 shadow-2xl z-40">
+        <div class="flex justify-between items-center px-1 gap-2">
+            <span class="timeline-label text-[10px] font-black uppercase text-slate-500 tracking-widest flex-shrink-0">Timeline</span>
+            <span class="swipe-hint text-[9px] text-slate-600 italic">← swipe to undo</span>
+            <button id="undo-btn"
+                    onmousedown="startUndoHold(event)" onmouseup="cancelUndoHold()" onmouseleave="cancelUndoHold()"
+                    ontouchstart="startUndoHold(event)" ontouchend="cancelUndoHold()" ontouchcancel="cancelUndoHold()"
+                    class="text-xs font-bold text-slate-100 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition-colors flex-shrink-0">
+                Hold to Undo
+            </button>
+        </div>
+        <div id="history-feed" class="flex gap-2 overflow-x-auto history-scroll py-2 px-1 text-[10px]">
+            <span class="text-slate-600 italic">Tracking in progress...</span>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div id="modal-reset" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-xs w-full text-center">
+            <h3 class="text-xl font-bold mb-2">Reset Match Data?</h3>
+            <p class="text-slate-400 text-sm mb-6">This will clear all stats, scores, and history.</p>
+            <div class="flex flex-col gap-2">
+                <button onclick="resetMatch()" class="w-full py-4 bg-red-600 text-white rounded-xl font-black text-sm uppercase">Yes, Clear All</button>
+                <button onclick="closeModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Match Modal -->
+    <div id="modal-save" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50">
+        <div class="flex items-center justify-center h-full p-6">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-xs w-full text-center">
+            <h3 class="text-xl font-bold mb-1">Save Match</h3>
+            <p id="save-match-desc" class="text-slate-400 text-sm mb-6"></p>
+            <div class="flex flex-col gap-2">
+                <button onclick="confirmSaveMatch()" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase">Save to Season</button>
+                <button onclick="closeSaveModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Season Overlay -->
+    <div id="season-overlay" class="hidden fixed inset-0 bg-slate-950 z-50">
+        <div class="flex flex-col h-full">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 flex-shrink-0">
+            <button id="season-back-btn" onclick="seasonBack()" class="hidden text-slate-300 font-bold text-sm px-3 py-2 rounded-lg bg-slate-800">← Back</button>
+            <div id="season-title" class="text-base font-black text-white uppercase tracking-tight">Season</div>
+            <button onclick="closeSeasonView()" class="text-slate-400 text-sm font-bold px-3 py-2 rounded-lg bg-slate-800">✕</button>
+        </div>
+        <div id="season-content" class="flex-1 overflow-y-auto p-4"></div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-5 py-2 rounded-full z-[60]"></div>
+
+    <!-- Quick Add Match Modal -->
+    <div id="modal-quick-add" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50">
+        <div class="flex items-start justify-center min-h-full p-4 pt-6 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-3xl w-full max-w-xs">
+            <h3 id="qa-modal-title" class="text-lg font-black text-white text-center mb-5 uppercase tracking-tight">Add Match</h3>
+
+            <div class="flex flex-col gap-4">
+                <div id="qa-header-fields" class="flex flex-col gap-4">
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Date</label>
+                    <input type="date" id="qa-date"
+                           class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Opponent</label>
+                    <input type="text" id="qa-opponent" placeholder="School name..."
+                           class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                </div>
+                </div>
+
+                <!-- Court Results -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-[10px] text-slate-500 font-bold uppercase">Court Results</label>
+                        <span id="qa-score-display" class="text-xs font-black text-slate-400"></span>
+                    </div>
+
+                    <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Singles</p>
+                    <div class="flex flex-col gap-1.5 mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 1</span>
+                                <span class="text-[8px] text-slate-600">Boys Singles 1</span>
+                            </div>
+                            <button id="qa-c0-w" onclick="selectCourt(0,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c0-l" onclick="selectCourt(0,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 2</span>
+                                <span class="text-[8px] text-slate-600">Girls Singles 1</span>
+                            </div>
+                            <button id="qa-c1-w" onclick="selectCourt(1,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c1-l" onclick="selectCourt(1,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 3</span>
+                                <span class="text-[8px] text-slate-600">Boys Singles 2</span>
+                            </div>
+                            <button id="qa-c2-w" onclick="selectCourt(2,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c2-l" onclick="selectCourt(2,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 4</span>
+                                <span class="text-[8px] text-slate-600">Girls Singles 2</span>
+                            </div>
+                            <button id="qa-c3-w" onclick="selectCourt(3,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c3-l" onclick="selectCourt(3,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                    </div>
+
+                    <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Doubles</p>
+                    <div class="flex flex-col gap-1.5 mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 5</span>
+                                <span class="text-[8px] text-slate-600">Boys Doubles 1</span>
+                            </div>
+                            <button id="qa-c4-w" onclick="selectCourt(4,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c4-l" onclick="selectCourt(4,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 6</span>
+                                <span class="text-[8px] text-slate-600">Girls Doubles 1</span>
+                            </div>
+                            <button id="qa-c5-w" onclick="selectCourt(5,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c5-l" onclick="selectCourt(5,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 7</span>
+                                <span class="text-[8px] text-slate-600">Boys Doubles 2</span>
+                            </div>
+                            <button id="qa-c6-w" onclick="selectCourt(6,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c6-l" onclick="selectCourt(6,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-slate-400 font-bold block">Court 8</span>
+                                <span class="text-[8px] text-slate-600">Girls Doubles 2</span>
+                            </div>
+                            <button id="qa-c7-w" onclick="selectCourt(7,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c7-l" onclick="selectCourt(7,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                    </div>
+
+                    <p class="text-[8px] text-emerald-800 font-bold uppercase tracking-widest mb-2">Mixed</p>
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex items-center gap-2 bg-emerald-950/30 rounded-xl px-3 py-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-emerald-300 font-bold block">Court 9 — Brandon &amp; Maddie</span>
+                                <span class="text-[8px] text-emerald-700">Mixed Doubles 1</span>
+                            </div>
+                            <button id="qa-c8-w" onclick="selectCourt(8,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                            <button id="qa-c8-l" onclick="selectCourt(8,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-slate-600 mt-3">Tap W or L for each court played. Overall match result is calculated automatically.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2 mt-5">
+                <button id="qa-submit-btn" onclick="submitQuickAdd()" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase">Add to Season</button>
+                <button onclick="closeQuickAddModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Hidden CSV import input -->
+    <input type="file" id="csv-import-input" accept=".csv" class="hidden" onchange="handleCSVImport(event)">
+
+    <script>
+        // ── State ─────────────────────────────────────────────────
+        let gamePoints = { us: 0, them: 0 };
+        let setScore = [
+            { us: 0, them: 0 },
+            { us: 0, them: 0 },
+            { us: 0, them: 0 }
+        ];
+        let setsWon = { us: 0, them: 0 };
+        let currentSetIndex = 0;
+        let matchOver = false;
+
+        let playerStats = {
+            Brandon: { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            Maddie:  { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            OppBoy:  { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            OppGirl: { ace: 0, fault: 0, df: 0, pointWon: 0 }
+        };
+
+        let history = [];
+        const SCORE_LABELS = ["0", "15", "30", "40", "AD"];
+
+// ── 3. Outdoor / high-contrast mode ──────────────────────
+        function toggleOutdoor() {
+            document.body.classList.toggle('outdoor');
+            document.getElementById('outdoor-btn').classList.toggle('active');
+        }
+
+        // ── 5. Hold-to-confirm Undo ───────────────────────────────
+        let undoHoldTimer = null;
+        function startUndoHold(e) {
+            if (history.length === 0) return;
+            e.preventDefault();
+            const btn = document.getElementById('undo-btn');
+            btn.classList.add('undo-holding');
+            undoHoldTimer = setTimeout(() => {
+                btn.classList.remove('undo-holding');
+                undo();
+                window.navigator.vibrate && window.navigator.vibrate([20, 10, 20]);
+            }, 600);
+        }
+        function cancelUndoHold() {
+            clearTimeout(undoHoldTimer);
+            document.getElementById('undo-btn').classList.remove('undo-holding');
+        }
+
+        // ── 7. Swipe left on timeline to undo ────────────────────
+        let swipeStartX = 0, swipeStartY = 0;
+        const feedEl = document.getElementById('history-feed');
+        feedEl.addEventListener('touchstart', e => {
+            swipeStartX = e.touches[0].clientX;
+            swipeStartY = e.touches[0].clientY;
+        }, { passive: true });
+        feedEl.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - swipeStartX;
+            const dy = e.changedTouches[0].clientY - swipeStartY;
+            if (dx < -60 && Math.abs(dy) < 40) undo();
+        }, { passive: true });
+
+        // ── Scoring ───────────────────────────────────────────────
+        function getGameScoreString(pts, isTB) {
+            if (isTB) return `${pts.us}-${pts.them}`;
+            return `${SCORE_LABELS[pts.us] || pts.us}-${SCORE_LABELS[pts.them] || pts.them}`;
+        }
+
+        function handlePoint(player, actionType, sideWinner) {
+            if (matchOver) return;
+
+            const isMatchTiebreak = (currentSetIndex === 2);
+            const isSetTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
+            const isTB = isMatchTiebreak || isSetTiebreak;
+
+            playerStats[player][actionType]++;
+            const result = incrementScore(sideWinner);
+
+            let finalRowGameScore, finalRowSetScore;
+            if (result.gameEnded) {
+                finalRowGameScore = result.finalTally;
+                finalRowSetScore  = `Set ${result.prevSetIndex + 1}: ${result.finalSetTally}`;
+            } else {
+                finalRowGameScore = getGameScoreString(gamePoints, isTB);
+                finalRowSetScore  = `Set ${currentSetIndex + 1}: ${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
+            }
+
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            history.unshift({
+                player, type: actionType, side: sideWinner, timestamp,
+                csvGameScore: finalRowGameScore, csvSetScore: finalRowSetScore,
+                state: JSON.parse(JSON.stringify({ gamePoints, setScore, setsWon, currentSetIndex, matchOver }))
+            });
+
+            updateUI();
+            triggerHaptic(actionType);
+        }
+
+        function incrementScore(side) {
+            const otherSide = side === 'us' ? 'them' : 'us';
+            const isSetTiebreak   = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
+            const isMatchTiebreak = (currentSetIndex === 2);
+            const isTB = isMatchTiebreak || isSetTiebreak;
+            let result = { gameEnded: false };
+
+            if (isTB) {
+                gamePoints[side]++;
+                const target = isMatchTiebreak ? 10 : 7;
+                if (isMatchTiebreak) {
+                    setScore[currentSetIndex][side]    = gamePoints[side];
+                    setScore[currentSetIndex][otherSide] = gamePoints[otherSide];
+                }
+                if (gamePoints[side] >= target && (gamePoints[side] - gamePoints[otherSide] >= 2)) {
+                    result = winGame(side, true);
+                }
+            } else {
+                if (gamePoints[side] === 3) {
+                    if (gamePoints[otherSide] < 3)      result = winGame(side, false);
+                    else if (gamePoints[otherSide] === 3) gamePoints[side] = 4;
+                    else if (gamePoints[otherSide] === 4) gamePoints[otherSide] = 3;
+                } else if (gamePoints[side] === 4) {
+                    result = winGame(side, false);
+                } else {
+                    gamePoints[side]++;
+                }
+            }
+            return result;
+        }
+
+        function winGame(side, isTB) {
+            const otherSide = side === 'us' ? 'them' : 'us';
+            const isMatchTiebreak = (currentSetIndex === 2);
+            const finalTally = isTB ? `${gamePoints.us}-${gamePoints.them}` : "Game Won";
+            const prevSetIndex = currentSetIndex;
+
+            if (!isMatchTiebreak) setScore[currentSetIndex][side]++;
+            else setScore[currentSetIndex][side] = gamePoints[side];
+
+            const finalSetTally = `${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
+            gamePoints = { us: 0, them: 0 };
+
+            const gamesWon  = setScore[currentSetIndex][side];
+            const gamesLost = setScore[currentSetIndex][otherSide];
+
+            if (isMatchTiebreak) {
+                winSet(side);
+            } else if ((gamesWon >= 6 && (gamesWon - gamesLost >= 2)) || gamesWon === 7) {
+                winSet(side);
+            }
+
+            return { gameEnded: true, finalTally, finalSetTally, prevSetIndex };
+        }
+
+        function winSet(side) {
+            setsWon[side]++;
+            if (setsWon[side] === 2) matchOver = true;
+            else if (setsWon.us + setsWon.them < 3) {
+                currentSetIndex++;
+                if (currentSetIndex > 2) matchOver = true;
+            } else matchOver = true;
+        }
+
+        function undo() {
+            if (history.length === 0) return;
+            const last = history.shift();
+            playerStats[last.player][last.type] = Math.max(0, playerStats[last.player][last.type] - 1);
+            if (history.length > 0) {
+                const s = history[0].state;
+                gamePoints      = JSON.parse(JSON.stringify(s.gamePoints));
+                setScore        = JSON.parse(JSON.stringify(s.setScore));
+                setsWon         = JSON.parse(JSON.stringify(s.setsWon));
+                currentSetIndex = s.currentSetIndex;
+                matchOver       = s.matchOver;
+            } else {
+                resetScoringOnly();
+            }
+            updateUI();
+        }
+
+        function resetScoringOnly() {
+            gamePoints      = { us: 0, them: 0 };
+            setScore        = [{ us:0, them:0 }, { us:0, them:0 }, { us:0, them:0 }];
+            setsWon         = { us: 0, them: 0 };
+            currentSetIndex = 0;
+            matchOver       = false;
+        }
+
+        function updateUI() {
+            for (const player in playerStats) {
+                for (const stat in playerStats[player]) {
+                    const el = document.getElementById(`${player.toLowerCase()}-${stat.toLowerCase()}`);
+                    if (el) el.innerText = playerStats[player][stat];
+                }
+            }
+
+            const isTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6) || currentSetIndex === 2;
+            document.getElementById('game-score-us').innerText   = isTiebreak ? gamePoints.us   : (SCORE_LABELS[gamePoints.us]   || "0");
+            document.getElementById('game-score-them').innerText = isTiebreak ? gamePoints.them : (SCORE_LABELS[gamePoints.them] || "0");
+
+            document.getElementById('sets-us').innerText    = `SETS: ${setsWon.us}`;
+            document.getElementById('sets-them').innerText  = `SETS: ${setsWon.them}`;
+            document.getElementById('set1-score').innerText = `${setScore[0].us}-${setScore[0].them}`;
+            document.getElementById('set2-score').innerText = `${setScore[1].us}-${setScore[1].them}`;
+            document.getElementById('set3-score').innerText = `${setScore[2].us}-${setScore[2].them}`;
+
+            const statusEl = document.getElementById('match-status');
+            if (matchOver) {
+                statusEl.innerText   = "Match Over";
+                statusEl.className   = "bg-white text-slate-900 text-[10px] px-3 py-1 rounded-full font-black uppercase mb-2";
+            } else {
+                statusEl.innerText   = currentSetIndex === 2 ? "Match Tiebreak" : `Set ${currentSetIndex + 1}`;
+                statusEl.className   = "bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold uppercase mb-2";
+            }
+
+            const feed = document.getElementById('history-feed');
+            if (history.length === 0) {
+                feed.innerHTML = '<span class="text-slate-600 italic">No events.</span>';
+            } else {
+                const labelMap = { ace: 'ACE', pointWon: 'WINNER', fault: 'ERROR', df: 'D-FAULT' };
+                const colorMap = { ace: 'text-emerald-400', pointWon: 'text-blue-400', fault: 'text-red-400', df: 'text-orange-400' };
+                feed.innerHTML = history.slice(0, 8).map(h =>
+                    `<div class="flex-shrink-0 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full whitespace-nowrap shadow-sm">` +
+                    `<span class="font-bold text-white">${h.player}:</span> ` +
+                    `<span class="${colorMap[h.type]} font-black uppercase text-[8px]">${labelMap[h.type] || h.type.toUpperCase()}</span></div>`
+                ).join('');
+            }
+        }
+
+        function triggerHaptic(type) {
+            if (!window.navigator.vibrate) return;
+            if (type === 'ace') window.navigator.vibrate([40, 20, 40]);
+            else window.navigator.vibrate(40);
+        }
+
+        function formatCsvCell(val) { return `="${val}"`; }
+
+        function exportCSV() {
+            const school = document.getElementById('opp-school').value || "Unknown School";
+            const date   = new Date().toISOString().split('T')[0];
+            let csv = `\uFEFFTennis Match Report,Date: ${date},Opponent: ${school}\n\n`;
+
+            csv += `Final Score Summary\n`;
+            csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
+            csv += `Our Team (Brandon/Maddie),${setsWon.us},${formatCsvCell(setScore[0].us+'-'+setScore[0].them)},${formatCsvCell(setScore[1].us+'-'+setScore[1].them)},${formatCsvCell(setScore[2].us+'-'+setScore[2].them)}\n`;
+            csv += `${school},${setsWon.them},${formatCsvCell(setScore[0].them+'-'+setScore[0].us)},${formatCsvCell(setScore[1].them+'-'+setScore[1].us)},${formatCsvCell(setScore[2].them+'-'+setScore[2].us)}\n\n`;
+
+            csv += `Player Stats\n`;
+            csv += `Player,Aces,Errors,Double-Faults,Winners\n`;
+            for (const p in playerStats) {
+                csv += `${p},${playerStats[p].ace},${playerStats[p].fault},${playerStats[p].df},${playerStats[p].pointWon}\n`;
+            }
+
+            csv += `\nTimeline\n`;
+            csv += `Timestamp,Player,Action,Game Score,Set Score\n`;
+            const actionMap = { pointWon: 'Winner', df: 'Double-Fault', fault: 'Error', ace: 'Ace' };
+            [...history].reverse().forEach(h => {
+                const actionName = actionMap[h.type] || (h.type.charAt(0).toUpperCase() + h.type.slice(1));
+                csv += `${h.timestamp},${h.player},${actionName},${formatCsvCell(h.csvGameScore)},${formatCsvCell(h.csvSetScore)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url  = window.URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `match_vs_${school.replace(/\s+/g, '_')}_${date}.csv`);
+            a.click();
+        }
+
+        function showResetModal() { document.getElementById('modal-reset').classList.remove('hidden'); }
+        function closeModal()     { document.getElementById('modal-reset').classList.add('hidden'); }
+        function resetMatch() {
+            playerStats = {
+                Brandon: { ace:0, fault:0, df:0, pointWon:0 },
+                Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
+                OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
+                OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
+            };
+            history = [];
+            resetScoringOnly();
+            updateUI();
+            closeModal();
+        }
+
+        updateUI();
+
+        // ── Season: localStorage helpers ─────────────────────────
+        const SEASON_KEY = 'tennisSeasonData';
+        function loadSeasonData() {
+            try { return JSON.parse(localStorage.getItem(SEASON_KEY)) || { matches: [] }; }
+            catch (e) { return { matches: [] }; }
+        }
+        function saveSeasonData(data) {
+            localStorage.setItem(SEASON_KEY, JSON.stringify(data));
+        }
+
+        // ── Save Match ────────────────────────────────────────────
+        function showSaveMatchModal() {
+            const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
+            const result   = setsWon.us > setsWon.them ? 'Win' : setsWon.them > setsWon.us ? 'Loss' : 'In Progress';
+            const setStr   = setScore
+                .filter(s => s.us > 0 || s.them > 0)
+                .map(s => `${s.us}-${s.them}`).join(', ') || '0-0';
+            document.getElementById('save-match-desc').innerText =
+                `vs. ${opponent} — ${result} (${setStr})`;
+            document.getElementById('modal-save').classList.remove('hidden');
+        }
+        function closeSaveModal() {
+            document.getElementById('modal-save').classList.add('hidden');
+        }
+        function confirmSaveMatch() {
+            const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
+            const result   = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?';
+            const matchRecord = {
+                id:          Date.now(),
+                date:        new Date().toISOString().split('T')[0],
+                opponent,
+                result,
+                setsWon:     { ...setsWon },
+                setScores:   setScore.map(s => ({ ...s })),
+                playerStats: JSON.parse(JSON.stringify(playerStats)),
+                timeline:    JSON.parse(JSON.stringify(history))
+            };
+            const data = loadSeasonData();
+            data.matches.unshift(matchRecord);
+            saveSeasonData(data);
+            closeSaveModal();
+            showToast('Match saved to season!');
+        }
+
+        // ── Season view ───────────────────────────────────────────
+        let seasonStack = [];   // tracks navigation: [] = main, [id] = detail
+
+        function showSeasonView() {
+            seasonStack = [];
+            document.getElementById('season-overlay').classList.remove('hidden');
+            renderSeasonMain();
+        }
+        function closeSeasonView() {
+            document.getElementById('season-overlay').classList.add('hidden');
+        }
+        function seasonBack() {
+            seasonStack.pop();
+            renderSeasonMain();
+        }
+
+        function renderSeasonMain() {
+            const { matches: rawMatches } = loadSeasonData();
+            const matches = [...rawMatches].sort((a, b) => new Date(b.date) - new Date(a.date));
+            document.getElementById('season-title').innerText = 'Season';
+            document.getElementById('season-back-btn').classList.add('hidden');
+
+            const wins   = matches.filter(m => m.result === 'W').length;
+            const losses = matches.filter(m => m.result === 'L').length;
+
+            // Aggregate season totals per player
+            const totals = {
+                Brandon: { ace:0, fault:0, df:0, pointWon:0 },
+                Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
+                OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
+                OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
+            };
+            matches.forEach(m => {
+                for (const p in totals) {
+                    if (m.playerStats && m.playerStats[p]) {
+                        for (const s in totals[p]) totals[p][s] += m.playerStats[p][s] || 0;
+                    }
+                }
+            });
+
+            const matchListHtml = matches.length === 0
+                ? '<p class="text-slate-500 italic text-sm text-center py-8">No matches saved yet.<br>Track a match and tap Save Match.</p>'
+                : matches.map(m => {
+                    const dateStr  = new Date(m.date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    const resColor = m.result === 'W' ? 'bg-emerald-500/20 text-emerald-400' : m.result === 'L' ? 'bg-red-500/20 text-red-400' : 'bg-slate-700 text-slate-400';
+                    const setStr = (m.setScores || []).filter(s => s.us > 0 || s.them > 0).map(s => s.us + '-' + s.them).join(', ');
+                    let subtitleParts = [];
+                    if (setStr) subtitleParts.push(setStr);
+                    if (m.courts) {
+                        const w = m.courts.filter(c => c.result === 'W').length;
+                        const l = m.courts.filter(c => c.result === 'L').length;
+                        subtitleParts.push('Courts ' + w + '–' + l);
+                    }
+                    const subtitle = dateStr + (subtitleParts.length ? ' · ' + subtitleParts.join(' · ') : '');
+                    return '<div onclick="showMatchDetail(' + m.id + ')" class="flex items-center gap-3 bg-slate-800 rounded-xl p-3 mb-2 active:opacity-70 cursor-pointer">' +
+                        '<div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ' + resColor + '">' + m.result + '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="font-bold text-white text-sm truncate">' + m.opponent + '</div>' +
+                            '<div class="text-[10px] text-slate-500">' + subtitle + '</div>' +
+                        '</div>' +
+                        '<div class="text-slate-600">›</div></div>';
+                }).join('');
+
+            const statRows = ['Brandon', 'Maddie', 'OppBoy', 'OppGirl'].map(p => {
+                const label = p === 'OppBoy' ? 'Opp. Boy' : p === 'OppGirl' ? 'Opp. Girl' : p;
+                const t = totals[p];
+                return '<tr class="border-t border-slate-800">' +
+                    '<td class="text-left py-2 pr-3 font-bold text-white text-xs">' + label + '</td>' +
+                    '<td class="py-2 px-2 text-emerald-400 font-black text-center">' + t.ace + '</td>' +
+                    '<td class="py-2 px-2 text-red-400 font-black text-center">' + t.fault + '</td>' +
+                    '<td class="py-2 px-2 text-orange-400 font-black text-center">' + t.df + '</td>' +
+                    '<td class="py-2 px-2 text-blue-400 font-black text-center">' + t.pointWon + '</td>' +
+                    '</tr>';
+            }).join('');
+
+            const statsTableHtml = matches.length === 0 ? '' :
+                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-6 mb-3">Season Totals</h3>' +
+                '<div class="overflow-x-auto"><table class="w-full text-xs">' +
+                '<thead><tr class="text-[9px] text-slate-500 uppercase">' +
+                '<th class="text-left py-2 pr-3 font-bold">Player</th>' +
+                '<th class="py-2 px-2 font-bold text-emerald-400 text-center">Ace</th>' +
+                '<th class="py-2 px-2 font-bold text-red-400 text-center">Error</th>' +
+                '<th class="py-2 px-2 font-bold text-orange-400 text-center">D-Flt</th>' +
+                '<th class="py-2 px-2 font-bold text-blue-400 text-center">Win</th>' +
+                '</tr></thead><tbody>' + statRows + '</tbody></table></div>';
+
+            document.getElementById('season-content').innerHTML =
+                '<div class="text-center mb-6">' +
+                '<div class="text-5xl font-black text-white">' + wins + '<span class="text-slate-600 mx-3 text-3xl">–</span>' + losses + '</div>' +
+                '<div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Wins – Losses · ' + matches.length + ' match' + (matches.length !== 1 ? 'es' : '') + '</div>' +
+                '</div>' +
+                '<button onclick="showQuickAddModal()" class="w-full mb-5 bg-slate-800 border border-dashed border-slate-600 hover:border-slate-500 text-slate-400 text-xs font-bold py-3 rounded-xl uppercase tracking-wide">+ Add Match Manually</button>' +
+                '<div class="flex items-center justify-between mb-3">' +
+                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Match History</h3>' +
+                '<button onclick="triggerCSVImport()" class="text-[10px] font-bold text-slate-400 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg">Import CSV</button>' +
+                '</div>' +
+                matchListHtml + statsTableHtml;
+        }
+
+        function showMatchDetail(id) {
+            const { matches } = loadSeasonData();
+            const m = matches.find(x => x.id === id);
+            if (!m) return;
+            seasonStack.push(id);
+            document.getElementById('season-back-btn').classList.remove('hidden');
+            document.getElementById('season-title').innerText = m.opponent;
+
+            const dateStr  = new Date(m.date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            const setStr   = m.setScores.filter(s => s.us > 0 || s.them > 0).map(s => `${s.us}-${s.them}`).join(', ');
+            const resColor = m.result === 'W' ? 'text-emerald-400' : 'text-red-400';
+            const resLabel = m.result === 'W' ? 'WIN' : m.result === 'L' ? 'LOSS' : 'IN PROGRESS';
+
+            const labelMap = { ace: 'ACE', pointWon: 'WINNER', fault: 'ERROR', df: 'D-FAULT' };
+            const colorMap = { ace: 'text-emerald-400', pointWon: 'text-blue-400', fault: 'text-red-400', df: 'text-orange-400' };
+
+            const timelineHtml = (!m.timeline || m.timeline.length === 0)
+                ? '<p class="text-slate-500 italic text-sm">No timeline data.</p>'
+                : [...m.timeline].reverse().map(h =>
+                    '<div class="flex items-center gap-2 py-1.5 border-b border-slate-800/60">' +
+                    '<span class="text-[9px] text-slate-600 w-16 flex-shrink-0">' + h.timestamp + '</span>' +
+                    '<span class="font-bold text-white text-xs w-16 flex-shrink-0">' + h.player + '</span>' +
+                    '<span class="' + (colorMap[h.type] || 'text-slate-400') + ' font-black text-[9px] uppercase flex-1">' + (labelMap[h.type] || h.type) + '</span>' +
+                    '<span class="text-slate-600 text-[9px]">' + (h.csvGameScore || '') + '</span>' +
+                    '</div>'
+                ).join('');
+
+            const statRows = ['Brandon', 'Maddie', 'OppBoy', 'OppGirl'].map(p => {
+                const label = p === 'OppBoy' ? 'Opp. Boy' : p === 'OppGirl' ? 'Opp. Girl' : p;
+                const s = (m.playerStats && m.playerStats[p]) || { ace:0, fault:0, df:0, pointWon:0 };
+                return '<tr class="border-t border-slate-800">' +
+                    '<td class="text-left py-2 pr-3 font-bold text-white text-xs">' + label + '</td>' +
+                    '<td class="py-2 px-2 text-emerald-400 font-black text-center">' + s.ace + '</td>' +
+                    '<td class="py-2 px-2 text-red-400 font-black text-center">' + s.fault + '</td>' +
+                    '<td class="py-2 px-2 text-orange-400 font-black text-center">' + s.df + '</td>' +
+                    '<td class="py-2 px-2 text-blue-400 font-black text-center">' + s.pointWon + '</td>' +
+                    '</tr>';
+            }).join('');
+
+            // Court breakdown section (manual entries only)
+            const courtsHtml = m.courts
+                ? '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Court Results</h3>' +
+                  '<div class="mb-6">' +
+                  ['singles', 'doubles', 'mixed'].map(type => {
+                      const group = m.courts.filter(c => c.type === type);
+                      if (!group.length) return '';
+                      const typeLabel = type === 'mixed' ? '<span class="text-emerald-600">' + type + '</span>' : type;
+                      return '<p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-1.5">' + typeLabel + '</p>' +
+                          group.map(c => {
+                              const rColor = c.result === 'W' ? 'text-emerald-400' : c.result === 'L' ? 'text-red-400' : 'text-slate-600';
+                              const rBg    = c.result === 'W' ? 'bg-emerald-500/10' : c.result === 'L' ? 'bg-red-500/10' : 'bg-slate-800';
+                              const descStr = c.desc ? ' <span class="text-[8px] text-slate-600">' + c.desc + '</span>' : '';
+                              const noteStr = c.note ? ' <span class="text-[8px] text-emerald-600">' + c.note + '</span>' : '';
+                              return '<div class="flex items-center justify-between py-1.5 border-b border-slate-800/60">' +
+                                  '<div><span class="text-xs font-bold text-white">' + c.label + '</span>' + descStr + noteStr + '</div>' +
+                                  '<span class="' + rColor + ' ' + rBg + ' font-black text-xs px-3 py-0.5 rounded-md">' + (c.result || '—') + '</span>' +
+                                  '</div>';
+                          }).join('');
+                  }).join('') +
+                  '</div>'
+                : '';
+
+            const courtsW = m.courts ? m.courts.filter(c => c.result === 'W').length : null;
+            const courtsL = m.courts ? m.courts.filter(c => c.result === 'L').length : null;
+            let scoreSubtitle = '';
+            if (setStr) scoreSubtitle += setStr;
+            if (m.courts) scoreSubtitle += (scoreSubtitle ? ' · ' : '') + courtsW + '–' + courtsL + ' courts';
+            if (!scoreSubtitle) scoreSubtitle = m.setsWon.us + '–' + m.setsWon.them + ' sets';
+
+            const editCourtsLabel = m.courts ? 'Edit Courts' : 'Add Courts';
+
+            document.getElementById('season-content').innerHTML =
+                '<div class="flex items-start justify-between mb-5">' +
+                '<div><div class="text-[10px] text-slate-500 mb-1">' + dateStr + '</div>' +
+                '<div class="flex items-center gap-2">' +
+                '<span class="font-black text-sm ' + resColor + '">' + resLabel + '</span>' +
+                '<span class="text-slate-400 text-xs">' + scoreSubtitle + '</span>' +
+                '</div></div>' +
+                '<div class="flex flex-col gap-1.5 items-end">' +
+                '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
+                '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>' +
+                '</div>' +
+                '</div>' +
+                courtsHtml +
+                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Player Stats</h3>' +
+                '<div class="overflow-x-auto mb-6"><table class="w-full text-xs">' +
+                '<thead><tr class="text-[9px] text-slate-500 uppercase">' +
+                '<th class="text-left py-2 pr-3 font-bold">Player</th>' +
+                '<th class="py-2 px-2 font-bold text-emerald-400 text-center">Ace</th>' +
+                '<th class="py-2 px-2 font-bold text-red-400 text-center">Error</th>' +
+                '<th class="py-2 px-2 font-bold text-orange-400 text-center">D-Flt</th>' +
+                '<th class="py-2 px-2 font-bold text-blue-400 text-center">Win</th>' +
+                '</tr></thead><tbody>' + statRows + '</tbody></table></div>' +
+                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Timeline</h3>' +
+                '<div>' + timelineHtml + '</div>';
+        }
+
+        function confirmDeleteMatch(id) {
+            if (confirm('Remove this match from the season?')) {
+                const data = loadSeasonData();
+                data.matches = data.matches.filter(m => m.id !== id);
+                saveSeasonData(data);
+                seasonBack();
+            }
+        }
+
+        // ── Quick Add Match ───────────────────────────────────────
+        const QA_COURT_DEFS = [
+            { id: 'C1', label: 'Court 1', desc: 'Boys Singles 1',   type: 'singles' },
+            { id: 'C2', label: 'Court 2', desc: 'Girls Singles 1',  type: 'singles' },
+            { id: 'C3', label: 'Court 3', desc: 'Boys Singles 2',   type: 'singles' },
+            { id: 'C4', label: 'Court 4', desc: 'Girls Singles 2',  type: 'singles' },
+            { id: 'C5', label: 'Court 5', desc: 'Boys Doubles 1',   type: 'doubles' },
+            { id: 'C6', label: 'Court 6', desc: 'Girls Doubles 1',  type: 'doubles' },
+            { id: 'C7', label: 'Court 7', desc: 'Boys Doubles 2',   type: 'doubles' },
+            { id: 'C8', label: 'Court 8', desc: 'Girls Doubles 2',  type: 'doubles' },
+            { id: 'C9', label: 'Court 9', desc: 'Mixed Doubles 1',  type: 'mixed', note: 'Brandon & Maddie' }
+        ];
+        let qaCourtSelections = [null, null, null, null, null, null, null, null, null];
+        let qaEditMatchId = null;
+
+        function selectCourt(idx, result) {
+            // Tap same button again to deselect
+            qaCourtSelections[idx] = qaCourtSelections[idx] === result ? null : result;
+            updateCourtButtons();
+        }
+
+        function updateCourtButtons() {
+            const won  = qaCourtSelections.filter(r => r === 'W').length;
+            const lost = qaCourtSelections.filter(r => r === 'L').length;
+            const scoreEl = document.getElementById('qa-score-display');
+            if (scoreEl) scoreEl.innerText = (won + lost > 0) ? won + ' – ' + lost : '';
+
+            qaCourtSelections.forEach((sel, idx) => {
+                const wBtn = document.getElementById('qa-c' + idx + '-w');
+                const lBtn = document.getElementById('qa-c' + idx + '-l');
+                if (!wBtn || !lBtn) return;
+                wBtn.className = 'flex-1 py-2 rounded-lg font-black text-xs ' +
+                    (sel === 'W' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-500');
+                lBtn.className = 'flex-1 py-2 rounded-lg font-black text-xs ' +
+                    (sel === 'L' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-500');
+            });
+        }
+
+        function showQuickAddModal() {
+            qaEditMatchId = null;
+            document.getElementById('qa-date').value     = new Date().toISOString().split('T')[0];
+            document.getElementById('qa-opponent').value = '';
+            qaCourtSelections = [null, null, null, null, null, null, null, null, null];
+            document.getElementById('qa-modal-title').innerText  = 'Add Match';
+            document.getElementById('qa-header-fields').classList.remove('hidden');
+            document.getElementById('qa-submit-btn').innerText   = 'Add to Season';
+            document.getElementById('modal-quick-add').classList.remove('hidden');
+            updateCourtButtons();
+        }
+
+        function showEditCourtsModal(matchId) {
+            const { matches } = loadSeasonData();
+            const m = matches.find(x => x.id === matchId);
+            if (!m) return;
+            qaEditMatchId = matchId;
+            qaCourtSelections = [null, null, null, null, null, null, null, null, null];
+            if (m.courts) {
+                m.courts.forEach((c, i) => { qaCourtSelections[i] = c.result; });
+            }
+            document.getElementById('qa-modal-title').innerText  = m.opponent + ' — Courts';
+            document.getElementById('qa-header-fields').classList.add('hidden');
+            document.getElementById('qa-submit-btn').innerText   = 'Save Court Results';
+            document.getElementById('modal-quick-add').classList.remove('hidden');
+            updateCourtButtons();
+        }
+
+        function closeQuickAddModal() {
+            document.getElementById('modal-quick-add').classList.add('hidden');
+        }
+
+        function submitQuickAdd() {
+            const courts = QA_COURT_DEFS.map((def, i) => ({
+                id:     def.id,
+                label:  def.label,
+                desc:   def.desc,
+                type:   def.type,
+                note:   def.note || null,
+                result: qaCourtSelections[i]
+            }));
+
+            const played = courts.filter(c => c.result !== null);
+            const won    = played.filter(c => c.result === 'W').length;
+            const lost   = played.filter(c => c.result === 'L').length;
+
+            // ── Edit mode: update courts on an existing match ──────
+            if (qaEditMatchId !== null) {
+                const data = loadSeasonData();
+                const idx  = data.matches.findIndex(x => x.id === qaEditMatchId);
+                if (idx !== -1) {
+                    data.matches[idx].courts = courts;
+                    // If the match had no tracked stats, also update overall result
+                    if (!data.matches[idx].timeline || data.matches[idx].timeline.length === 0) {
+                        data.matches[idx].result = won > lost ? 'W' : lost > won ? 'L' : '?';
+                    }
+                    saveSeasonData(data);
+                }
+                const editId = qaEditMatchId;
+                closeQuickAddModal();
+                renderSeasonMain();
+                showMatchDetail(editId);
+                showToast('Court results saved!');
+                return;
+            }
+
+            // ── Create mode: new manual match record ───────────────
+            const date     = document.getElementById('qa-date').value || new Date().toISOString().split('T')[0];
+            const opponent = document.getElementById('qa-opponent').value.trim() || 'Unknown Opponent';
+            const result   = won > lost ? 'W' : lost > won ? 'L' : '?';
+
+            const matchRecord = {
+                id: Date.now(), date, opponent, result,
+                courts,
+                setsWon:    { us: won, them: lost },
+                setScores:  [{ us:0, them:0 }, { us:0, them:0 }, { us:0, them:0 }],
+                playerStats: {
+                    Brandon: { ace:0, fault:0, df:0, pointWon:0 },
+                    Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
+                    OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
+                    OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
+                },
+                timeline: []
+            };
+
+            const data = loadSeasonData();
+            data.matches.push(matchRecord);
+            saveSeasonData(data);
+            closeQuickAddModal();
+            renderSeasonMain();
+            showToast('Match added!');
+        }
+
+        // ── CSV Import ───────────────────────────────────────────
+        function triggerCSVImport() {
+            document.getElementById('csv-import-input').value = '';
+            document.getElementById('csv-import-input').click();
+        }
+
+        function handleCSVImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const match = parseMatchCSV(e.target.result);
+                    const data  = loadSeasonData();
+                    data.matches.unshift(match);
+                    saveSeasonData(data);
+                    renderSeasonMain();
+                    showToast('Match imported!');
+                } catch (err) {
+                    alert('Could not parse this CSV. Make sure it was exported from this app.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseMatchCSV(rawText) {
+            const text  = rawText.replace(/^\uFEFF/, '');       // strip BOM
+            const lines = text.split(/\r?\n/);
+
+            function stripCell(cell) {
+                cell = cell.trim();
+                if (cell.startsWith('="') && cell.endsWith('"')) return cell.slice(2, -1);
+                return cell;
+            }
+            function parseLine(line) { return line.split(',').map(stripCell); }
+
+            // ── Header row ──────────────────────────────────────
+            const headerCells = parseLine(lines[0]);
+            let date     = new Date().toISOString().split('T')[0];
+            let opponent = 'Unknown Opponent';
+            headerCells.forEach(cell => {
+                if (cell.startsWith('Date:'))     date     = cell.replace('Date:', '').trim();
+                if (cell.startsWith('Opponent:')) opponent = cell.replace('Opponent:', '').trim();
+            });
+
+            // ── Working state ────────────────────────────────────
+            let setsWon   = { us: 0, them: 0 };
+            let setScores = [{ us:0, them:0 }, { us:0, them:0 }, { us:0, them:0 }];
+            let playerStats = {
+                Brandon: { ace:0, fault:0, df:0, pointWon:0 },
+                Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
+                OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
+                OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
+            };
+            let timeline = [];
+
+            const actionMap = { 'Ace':'ace', 'Winner':'pointWon', 'Error':'fault', 'Double-Fault':'df' };
+
+            // ── Parse sections ───────────────────────────────────
+            let section = '';
+            for (const rawLine of lines) {
+                const line = rawLine.trim();
+                if (!line) continue;
+
+                if (line === 'Final Score Summary') { section = 'score';    continue; }
+                if (line === 'Player Stats')         { section = 'stats';    continue; }
+                if (line === 'Timeline')             { section = 'timeline'; continue; }
+
+                const cells = parseLine(line);
+
+                if (section === 'score') {
+                    if (cells[0] === 'Team') continue;
+                    if (cells[0].startsWith('Our Team')) {
+                        setsWon.us = parseInt(cells[1]) || 0;
+                        for (let i = 0; i < 3; i++) {
+                            const parts = (cells[2 + i] || '0-0').split('-');
+                            setScores[i].us   = parseInt(parts[0]) || 0;
+                            setScores[i].them = parseInt(parts[1]) || 0;
+                        }
+                    } else if (cells[0]) {
+                        setsWon.them = parseInt(cells[1]) || 0;
+                    }
+                }
+
+                if (section === 'stats') {
+                    if (cells[0] === 'Player') continue;
+                    const p = cells[0];
+                    if (playerStats[p]) {
+                        playerStats[p].ace      = parseInt(cells[1]) || 0;
+                        playerStats[p].fault    = parseInt(cells[2]) || 0;
+                        playerStats[p].df       = parseInt(cells[3]) || 0;
+                        playerStats[p].pointWon = parseInt(cells[4]) || 0;
+                    }
+                }
+
+                if (section === 'timeline') {
+                    if (cells[0] === 'Timestamp' || !cells[0] || !cells[1]) continue;
+                    const type      = actionMap[cells[2]] || 'ace';
+                    const player    = cells[1];
+                    const isOurs    = ['Brandon', 'Maddie'].includes(player);
+                    const winsPoint = ['ace', 'pointWon'].includes(type);
+                    timeline.push({
+                        timestamp:    cells[0],
+                        player,
+                        type,
+                        csvGameScore: cells[3] || '',
+                        csvSetScore:  cells[4] || '',
+                        side:         isOurs ? (winsPoint ? 'us' : 'them') : (winsPoint ? 'them' : 'us'),
+                        state:        null
+                    });
+                }
+            }
+
+            // CSV timeline is oldest-first; season storage is newest-first
+            timeline.reverse();
+
+            const result = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?';
+            return { id: Date.now(), date, opponent, result, setsWon, setScores, playerStats, timeline };
+        }
+
+        // ── Toast ─────────────────────────────────────────────────
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.add('hidden'), 2000);
+        }
+    </script>
+</body>
+</html>
