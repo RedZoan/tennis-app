@@ -697,6 +697,49 @@
             localStorage.setItem(SEASON_KEY, JSON.stringify(data));
         }
 
+        // ── GitHub match source ───────────────────────────────────
+        const GH_OWNER  = 'RedZoan';  // ← fill this in
+        const GH_REPO   = 'tennis-app';
+        const GH_FOLDER = 'matches';
+        let ghMatchCache     = null;   // null = not fetched yet; [] = fetched, none found
+        let allSeasonMatches = [];     // merged GitHub + local, used by detail view
+
+        function ghStableId(filename) {
+            // Deterministic numeric ID from filename so onclick handlers stay valid
+            let h = 5381;
+            for (let i = 0; i < filename.length; i++) h = (Math.imul(h, 33) ^ filename.charCodeAt(i)) >>> 0;
+            return h;
+        }
+
+        async function fetchGitHubMatches() {
+            if (ghMatchCache !== null) return ghMatchCache;
+            if (!GH_OWNER || GH_OWNER === 'YOUR_GITHUB_USERNAME') return [];
+            try {
+                const res = await fetch(
+                    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}`
+                );
+                if (!res.ok) return [];
+                const files = await res.json();
+                if (!Array.isArray(files)) return [];
+                const csvFiles = files.filter(f => f.name.endsWith('.csv'));
+                const matches  = await Promise.all(csvFiles.map(async f => {
+                    try {
+                        const r    = await fetch(f.download_url);
+                        const text = await r.text();
+                        const m    = parseMatchCSV(text);
+                        m.id     = ghStableId(f.name);   // stable ID
+                        m._gh    = true;                  // marks as GitHub-sourced
+                        m._ghFile = f.name;
+                        return m;
+                    } catch { return null; }
+                }));
+                ghMatchCache = matches.filter(Boolean);
+                return ghMatchCache;
+            } catch {
+                return [];
+            }
+        }
+
         // ── Save Match ────────────────────────────────────────────
         function showSaveMatchModal() {
             const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
@@ -734,22 +777,31 @@
         // ── Season view ───────────────────────────────────────────
         let seasonStack = [];   // tracks navigation: [] = main, [id] = detail
 
-        function showSeasonView() {
+        async function showSeasonView() {
             seasonStack = [];
             document.getElementById('season-overlay').classList.remove('hidden');
-            renderSeasonMain();
+            document.getElementById('season-title').innerText = 'Season';
+            document.getElementById('season-back-btn').classList.add('hidden');
+            document.getElementById('season-content').innerHTML =
+                '<div class="flex items-center justify-center py-12 text-slate-500 text-sm">Loading matches…</div>';
+            const ghMatches = await fetchGitHubMatches();
+            renderSeasonMain(ghMatches);
         }
         function closeSeasonView() {
             document.getElementById('season-overlay').classList.add('hidden');
         }
         function seasonBack() {
             seasonStack.pop();
-            renderSeasonMain();
+            renderSeasonMain(ghMatchCache || []);
         }
 
-        function renderSeasonMain() {
-            const { matches: rawMatches } = loadSeasonData();
-            const matches = [...rawMatches].sort((a, b) => new Date(b.date) - new Date(a.date));
+        function renderSeasonMain(ghMatches = []) {
+            const { matches: localMatches } = loadSeasonData();
+            // GitHub matches take priority; local matches not on GitHub are appended
+            const ghKeys   = new Set(ghMatches.map(m => m.date + '|' + m.opponent.trim().toLowerCase()));
+            const localOnly = localMatches.filter(m => !ghKeys.has(m.date + '|' + m.opponent.trim().toLowerCase()));
+            allSeasonMatches = [...ghMatches, ...localOnly].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const matches = allSeasonMatches;
             document.getElementById('season-title').innerText = 'Season';
             document.getElementById('season-back-btn').classList.add('hidden');
 
@@ -831,8 +883,8 @@
         }
 
         function showMatchDetail(id) {
-            const { matches } = loadSeasonData();
-            const m = matches.find(x => x.id === id);
+            const m = allSeasonMatches.find(x => x.id === id)
+                   || (() => { const { matches } = loadSeasonData(); return matches.find(x => x.id === id); })();
             if (!m) return;
             seasonStack.push(id);
             document.getElementById('season-back-btn').classList.remove('hidden');
@@ -900,6 +952,12 @@
             if (!scoreSubtitle) scoreSubtitle = m.setsWon.us + '–' + m.setsWon.them + ' sets';
 
             const editCourtsLabel = m.courts ? 'Edit Courts' : 'Add Courts';
+            const actionsHtml = m._gh
+                ? '<span class="text-[10px] text-slate-600 italic px-2 py-2">From GitHub</span>'
+                : '<div class="flex flex-col gap-1.5 items-end">' +
+                  '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
+                  '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>' +
+                  '</div>';
 
             document.getElementById('season-content').innerHTML =
                 '<div class="flex items-start justify-between mb-5">' +
@@ -908,10 +966,7 @@
                 '<span class="font-black text-sm ' + resColor + '">' + resLabel + '</span>' +
                 '<span class="text-slate-400 text-xs">' + scoreSubtitle + '</span>' +
                 '</div></div>' +
-                '<div class="flex flex-col gap-1.5 items-end">' +
-                '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
-                '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>' +
-                '</div>' +
+                actionsHtml +
                 '</div>' +
                 courtsHtml +
                 '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Player Stats</h3>' +
@@ -1034,7 +1089,7 @@
                 }
                 const editId = qaEditMatchId;
                 closeQuickAddModal();
-                renderSeasonMain();
+                renderSeasonMain(ghMatchCache || []);
                 showMatchDetail(editId);
                 showToast('Court results saved!');
                 return;
@@ -1063,7 +1118,7 @@
             data.matches.push(matchRecord);
             saveSeasonData(data);
             closeQuickAddModal();
-            renderSeasonMain();
+            renderSeasonMain(ghMatchCache || []);
             showToast('Match added!');
         }
 
@@ -1083,7 +1138,7 @@
                     const data  = loadSeasonData();
                     data.matches.unshift(match);
                     saveSeasonData(data);
-                    renderSeasonMain();
+                    renderSeasonMain(ghMatchCache || []);
                     showToast('Match imported!');
                 } catch (err) {
                     alert('Could not parse this CSV. Make sure it was exported from this app.');
