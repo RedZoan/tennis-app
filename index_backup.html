@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tennis Match Tracker V3 - MPSSAA Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .player-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-active:active {
+            transform: scale(0.95);
+        }
+
+        button {
+            touch-action: manipulation;
+        }
+
+        .ace-btn { background-color: #10b981; color: #064e3b; }
+        .point-btn { background-color: #3b82f6; color: #1e3a8a; }
+        .fault-btn { background-color: #ef4444; color: #7f1d1d; }
+        .df-btn { background-color: #f97316; color: #7c2d12; }
+
+        .history-scroll::-webkit-scrollbar { width: 4px; }
+        .history-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        input::placeholder { color: #64748b; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 p-2 sm:p-4">
+
+    <!-- Header & Match Settings -->
+    <header class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 mb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-xl font-black text-white uppercase tracking-tighter leading-none">Match Tracker <span class="text-emerald-500">V3</span></h1>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Opponent:</span>
+                    <input id="opp-school" type="text" placeholder="Enter School Name..." 
+                           class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <button onclick="exportCSV()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors shadow-lg">Export CSV</button>
+                <button onclick="showResetModal()" class="flex-1 sm:flex-none bg-slate-800 text-slate-400 text-[10px] font-bold px-4 py-2 rounded-lg uppercase border border-slate-700">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Scoreboard -->
+    <section class="player-card border-2 border-emerald-500/30 rounded-3xl p-4 mb-4">
+        <div class="grid grid-cols-3 items-center text-center">
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold text-slate-500 uppercase mb-1">Our Team</span>
+                <div id="sets-us" class="text-xs font-black text-emerald-500">SETS: 0</div>
+                <div id="game-score-us" class="text-5xl font-black text-white">0</div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div id="match-status" class="bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold uppercase mb-2">Set 1</div>
+                <div class="flex gap-2">
+                    <div id="set1-score" class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded text-[10px] font-bold leading-tight">0-0</div>
+                    <div id="set2-score" class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded text-[10px] font-bold leading-tight">0-0</div>
+                    <div id="set3-score" class="w-8 h-8 flex items-center justify-center bg-slate-800 rounded text-[10px] font-bold leading-tight">0-0</div>
+                </div>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] font-bold text-slate-500 uppercase mb-1">Opponents</span>
+                <div id="sets-them" class="text-xs font-black text-red-500">SETS: 0</div>
+                <div id="game-score-them" class="text-5xl font-black text-white">0</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scoring Grid -->
+    <main class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-3 pb-32">
+        
+        <!-- Brandon -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Our Team</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Brandon</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="brandon-ace" class="text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Fault</p><p id="brandon-fault" class="text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="brandon-df" class="text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Won</p><p id="brandon-pointwon" class="text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('Brandon', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace Serve</button>
+                <button onclick="handlePoint('Brandon', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Point Won</button>
+                <button onclick="handlePoint('Brandon', 'fault', 'them')" class="btn-active fault-btn py-3 rounded-xl font-black text-xs uppercase">Fault</button>
+                <button onclick="handlePoint('Brandon', 'df', 'them')" class="btn-active df-btn py-3 rounded-xl font-black text-xs uppercase">D-Fault</button>
+            </div>
+        </div>
+
+        <!-- Maddie -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Our Team</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Maddie</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="maddie-ace" class="text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Fault</p><p id="maddie-fault" class="text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="maddie-df" class="text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Won</p><p id="maddie-pointwon" class="text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('Maddie', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace Serve</button>
+                <button onclick="handlePoint('Maddie', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Point Won</button>
+                <button onclick="handlePoint('Maddie', 'fault', 'them')" class="btn-active fault-btn py-3 rounded-xl font-black text-xs uppercase">Fault</button>
+                <button onclick="handlePoint('Maddie', 'df', 'them')" class="btn-active df-btn py-3 rounded-xl font-black text-xs uppercase">D-Fault</button>
+            </div>
+        </div>
+
+        <!-- Opponent Boy -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Opponents</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Opp. Boy</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppboy-ace" class="text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Fault</p><p id="oppboy-fault" class="text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppboy-df" class="text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Won</p><p id="oppboy-pointwon" class="text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('OppBoy', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace Serve</button>
+                <button onclick="handlePoint('OppBoy', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Point Won</button>
+                <button onclick="handlePoint('OppBoy', 'fault', 'us')" class="btn-active fault-btn py-3 rounded-xl font-black text-xs uppercase opacity-90">Fault</button>
+                <button onclick="handlePoint('OppBoy', 'df', 'us')" class="btn-active df-btn py-3 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
+            </div>
+        </div>
+
+        <!-- Opponent Girl -->
+        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-tight">Opponents</span>
+                <span class="text-lg font-black text-white uppercase tracking-tight">Opp. Girl</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mb-4 text-center">
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppgirl-ace" class="text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Fault</p><p id="oppgirl-fault" class="text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppgirl-df" class="text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Won</p><p id="oppgirl-pointwon" class="text-xl font-black text-blue-400">0</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handlePoint('OppGirl', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace Serve</button>
+                <button onclick="handlePoint('OppGirl', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Point Won</button>
+                <button onclick="handlePoint('OppGirl', 'fault', 'us')" class="btn-active fault-btn py-3 rounded-xl font-black text-xs uppercase opacity-90">Fault</button>
+                <button onclick="handlePoint('OppGirl', 'df', 'us')" class="btn-active df-btn py-3 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Undo & Recent Feed -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex flex-col gap-2 shadow-2xl z-40">
+        <div class="flex justify-between items-center px-1">
+            <span class="text-[10px] font-black uppercase text-slate-500 tracking-widest">Match Timeline</span>
+            <button onclick="undo()" class="text-xs font-bold text-slate-100 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg btn-active transition-colors">Undo Last</button>
+        </div>
+        <div id="history-feed" class="flex gap-2 overflow-x-auto history-scroll py-2 px-1 text-[10px]">
+            <span class="text-slate-600 italic">Tracking in progress...</span>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div id="modal-reset" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-xs w-full text-center">
+            <h3 class="text-xl font-bold mb-2">Reset Match Data?</h3>
+            <p class="text-slate-400 text-sm mb-6">This will clear all stats, scores, and history.</p>
+            <div class="flex flex-col gap-2">
+                <button onclick="resetMatch()" class="w-full py-4 bg-red-600 text-white rounded-xl font-black text-sm uppercase">Yes, Clear All</button>
+                <button onclick="closeModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MPSSAA Scoring Engine State
+        let gamePoints = { us: 0, them: 0 };
+        let setScore = [
+            { us: 0, them: 0 }, // Set 1
+            { us: 0, them: 0 }, // Set 2
+            { us: 0, them: 0 }  // Set 3 (Tiebreaker Points)
+        ];
+        let setsWon = { us: 0, them: 0 };
+        let currentSetIndex = 0; 
+        let matchOver = false;
+
+        let playerStats = {
+            Brandon: { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            Maddie: { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            OppBoy: { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            OppGirl: { ace: 0, fault: 0, df: 0, pointWon: 0 }
+        };
+
+        let history = [];
+
+        // Constants
+        const SCORE_LABELS = ["0", "15", "30", "40", "AD"];
+
+        function getGameScoreString(pts, isTB) {
+            if (isTB) return `${pts.us}-${pts.them}`;
+            return `${SCORE_LABELS[pts.us] || pts.us}-${SCORE_LABELS[pts.them] || pts.them}`;
+        }
+
+        function handlePoint(player, actionType, sideWinner) {
+            if (matchOver) return;
+
+            const isMatchTiebreak = (currentSetIndex === 2);
+            const isSetTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
+            const isTB = isMatchTiebreak || isSetTiebreak;
+
+            // PRE-SNAP for CSV logic: Get current score before incrementing
+            const preIncrementGameScore = getGameScoreString(gamePoints, isTB);
+            const preIncrementSetScore = `Set ${currentSetIndex+1}: ${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
+
+            // Increment stats
+            playerStats[player][actionType]++;
+            
+            // Advance logic
+            const result = incrementScore(sideWinner);
+            
+            // Generate POST-POINT snapshot string for the row
+            // If the game ended, we want to show the final tally reached rather than 0-0
+            let finalRowGameScore = "";
+            let finalRowSetScore = "";
+
+            if (result.gameEnded) {
+                finalRowGameScore = result.finalTally;
+                finalRowSetScore = `Set ${result.prevSetIndex+1}: ${result.finalSetTally}`;
+            } else {
+                finalRowGameScore = getGameScoreString(gamePoints, isTB);
+                finalRowSetScore = `Set ${currentSetIndex+1}: ${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
+            }
+
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            history.unshift({ 
+                player, 
+                type: actionType, 
+                side: sideWinner,
+                timestamp,
+                // These strings are used specifically for the CSV export rows
+                csvGameScore: finalRowGameScore,
+                csvSetScore: finalRowSetScore,
+                state: JSON.parse(JSON.stringify({ gamePoints, setScore, setsWon, currentSetIndex, matchOver }))
+            });
+
+            updateUI();
+            triggerHaptic(actionType);
+        }
+
+        function incrementScore(side) {
+            const otherSide = side === 'us' ? 'them' : 'us';
+            const isSetTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
+            const isMatchTiebreak = (currentSetIndex === 2);
+            const isTB = isMatchTiebreak || isSetTiebreak;
+
+            let result = { gameEnded: false };
+
+            if (isTB) {
+                gamePoints[side]++;
+                const target = isMatchTiebreak ? 10 : 7;
+                
+                if (isMatchTiebreak) {
+                    setScore[currentSetIndex][side] = gamePoints[side];
+                    setScore[currentSetIndex][otherSide] = gamePoints[otherSide];
+                }
+
+                if (gamePoints[side] >= target && (gamePoints[side] - gamePoints[otherSide] >= 2)) {
+                    result = winGame(side, true);
+                }
+            } else {
+                if (gamePoints[side] === 3) {
+                    if (gamePoints[otherSide] < 3) result = winGame(side, false);
+                    else if (gamePoints[otherSide] === 3) gamePoints[side] = 4;
+                    else if (gamePoints[otherSide] === 4) gamePoints[otherSide] = 3;
+                } else if (gamePoints[side] === 4) result = winGame(side, false);
+                else gamePoints[side]++;
+            }
+            return result;
+        }
+
+        function winGame(side, isTB) {
+            const otherSide = side === 'us' ? 'them' : 'us';
+            const isMatchTiebreak = (currentSetIndex === 2);
+            
+            // Capture final game tally for CSV display
+            let finalTally = "";
+            if (isTB) {
+                finalTally = `${gamePoints.us}-${gamePoints.them}`;
+            } else {
+                // If winning from 40-0 or Adv, show the winning state
+                finalTally = "Game Won";
+            }
+
+            const prevSetIndex = currentSetIndex;
+
+            if (!isMatchTiebreak) {
+                setScore[currentSetIndex][side]++;
+            } else {
+                setScore[currentSetIndex][side] = gamePoints[side];
+            }
+
+            const finalSetTally = `${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
+
+            gamePoints = { us: 0, them: 0 };
+            const gamesWon = setScore[currentSetIndex][side];
+            const gamesLost = setScore[currentSetIndex][otherSide];
+            
+            if (isMatchTiebreak) {
+                winSet(side);
+            } else {
+                if ((gamesWon >= 6 && (gamesWon - gamesLost >= 2)) || (gamesWon === 7)) {
+                    winSet(side);
+                }
+            }
+
+            return { gameEnded: true, finalTally, finalSetTally, prevSetIndex };
+        }
+
+        function winSet(side) {
+            setsWon[side]++;
+            if (setsWon[side] === 2) matchOver = true;
+            else if (setsWon.us + setsWon.them < 3) {
+                currentSetIndex++;
+                if (currentSetIndex > 2) matchOver = true;
+            } else matchOver = true;
+        }
+
+        function undo() {
+            if (history.length === 0) return;
+            const last = history.shift();
+            playerStats[last.player][last.type] = Math.max(0, playerStats[last.player][last.type] - 1);
+            if (history.length > 0) {
+                const prevState = history[0].state;
+                gamePoints = JSON.parse(JSON.stringify(prevState.gamePoints));
+                setScore = JSON.parse(JSON.stringify(prevState.setScore));
+                setsWon = JSON.parse(JSON.stringify(prevState.setsWon));
+                currentSetIndex = prevState.currentSetIndex;
+                matchOver = prevState.matchOver;
+            } else {
+                resetScoringOnly();
+            }
+            updateUI();
+        }
+
+        function resetScoringOnly() {
+            gamePoints = { us: 0, them: 0 };
+            setScore = [{us:0,them:0},{us:0,them:0},{us:0,them:0}];
+            setsWon = {us:0,them:0};
+            currentSetIndex = 0;
+            matchOver = false;
+        }
+
+        function updateUI() {
+            for (const player in playerStats) {
+                for (const stat in playerStats[player]) {
+                    const el = document.getElementById(`${player.toLowerCase()}-${stat}`);
+                    if (el) el.innerText = playerStats[player][stat];
+                }
+            }
+
+            const isTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6) || currentSetIndex === 2;
+            document.getElementById('game-score-us').innerText = isTiebreak ? gamePoints.us : (SCORE_LABELS[gamePoints.us] || "0");
+            document.getElementById('game-score-them').innerText = isTiebreak ? gamePoints.them : (SCORE_LABELS[gamePoints.them] || "0");
+
+            document.getElementById('sets-us').innerText = `SETS: ${setsWon.us}`;
+            document.getElementById('sets-them').innerText = `SETS: ${setsWon.them}`;
+            document.getElementById('set1-score').innerText = `${setScore[0].us}-${setScore[0].them}`;
+            document.getElementById('set2-score').innerText = `${setScore[1].us}-${setScore[1].them}`;
+            document.getElementById('set3-score').innerText = `${setScore[2].us}-${setScore[2].them}`;
+
+            const statusEl = document.getElementById('match-status');
+            if (matchOver) {
+                statusEl.innerText = "Match Over";
+                statusEl.className = "bg-white text-slate-900 text-[10px] px-3 py-1 rounded-full font-black uppercase mb-2";
+            } else {
+                statusEl.innerText = currentSetIndex === 2 ? "Match Tiebreak" : `Set ${currentSetIndex + 1}`;
+                statusEl.className = "bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold uppercase mb-2";
+            }
+
+            const feed = document.getElementById('history-feed');
+            if (history.length === 0) {
+                feed.innerHTML = '<span class="text-slate-600 italic">No events.</span>';
+            } else {
+                feed.innerHTML = history.slice(0, 8).map(h => {
+                    const colorMap = { ace: 'text-emerald-400', pointWon: 'text-blue-400', fault: 'text-red-400', df: 'text-orange-400' };
+                    return `<div class="flex-shrink-0 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full whitespace-nowrap shadow-sm"><span class="font-bold text-white">${h.player}:</span> <span class="${colorMap[h.type]} font-black uppercase text-[8px]">${h.type === 'pointWon' ? 'WON' : h.type}</span></div>`;
+                }).join('');
+            }
+        }
+
+        function triggerHaptic(type) {
+            if (!window.navigator.vibrate) return;
+            if (type === 'ace') window.navigator.vibrate([40, 20, 40]);
+            else window.navigator.vibrate(40);
+        }
+
+        function formatCsvCell(val) {
+            return `="${val}"`;
+        }
+
+        function exportCSV() {
+            const school = document.getElementById('opp-school').value || "Unknown School";
+            const date = new Date().toISOString().split('T')[0];
+            let csv = `\uFEFFTennis Match Report,Date: ${date},Opponent: ${school}\n\n`;
+            
+            csv += `Final Score Summary\n`;
+            csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
+            csv += `Our Team (Brandon/Maddie),${setsWon.us},${formatCsvCell(setScore[0].us+'-'+setScore[0].them)},${formatCsvCell(setScore[1].us+'-'+setScore[1].them)},${formatCsvCell(setScore[2].us+'-'+setScore[2].them)}\n`;
+            csv += `${school},${setsWon.them},${formatCsvCell(setScore[0].them+'-'+setScore[0].us)},${formatCsvCell(setScore[1].them+'-'+setScore[1].us)},${formatCsvCell(setScore[2].them+'-'+setScore[2].us)}\n\n`;
+
+            csv += `Player Stats\n`;
+            csv += `Player,Ace Serves,Faults,Double-Faults,Points Won\n`;
+            for (const p in playerStats) {
+                csv += `${p},${playerStats[p].ace},${playerStats[p].fault},${playerStats[p].df},${playerStats[p].pointWon}\n`;
+            }
+
+            csv += `\nTimeline\n`;
+            csv += `Timestamp,Player,Action,Game Score,Set Score\n`;
+            [...history].reverse().forEach(h => {
+                // Map internal type to the requested CSV action name
+                let actionName = h.type === 'pointWon' ? 'Point Won' : (h.type === 'df' ? 'Double-Fault' : h.type.charAt(0).toUpperCase() + h.type.slice(1));
+                
+                csv += `${h.timestamp},${h.player},${actionName},${formatCsvCell(h.csvGameScore)},${formatCsvCell(h.csvSetScore)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `match_vs_${school.replace(/\s+/g, '_')}_${date}.csv`);
+            a.click();
+        }
+
+        function showResetModal() { document.getElementById('modal-reset').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal-reset').classList.add('hidden'); }
+        function resetMatch() {
+            playerStats = { Brandon: { ace: 0, fault: 0, df: 0, pointWon: 0 }, Maddie: { ace: 0, fault: 0, df: 0, pointWon: 0 }, OppBoy: { ace: 0, fault: 0, df: 0, pointWon: 0 }, OppGirl: { ace: 0, fault: 0, df: 0, pointWon: 0 } };
+            history = [];
+            resetScoringOnly();
+            updateUI();
+            closeModal();
+        }
+        updateUI();
+    </script>
+</body>
+</html>
