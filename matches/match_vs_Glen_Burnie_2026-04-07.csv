@@ -1,13 +1,28 @@
-﻿Tennis Match Report,Date: 2026-04-07,Opponent: Glen Burnie
+Tennis Match Report,Date: 2026-04-07,Opponent: Glen Burnie,,
 
 Final Score Summary
 Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)
-Our Team (Brandon/Maddie),2,="6-0",="6-0",="0-0"
-Glen Burnie,0,="0-6",="0-6",="0-0"
+CHS Mixed Doubles (Brandon/Maddie),2,6-0,6-0,0-0
+Glen Burnie,0,0-6,0-6,0-0
+
+Court Results
+Court,Description,Type,Note,Result
+Court 1,Boys Singles 1,singles,,W
+Court 2,Girls Singles 1,singles,,L
+Court 3,Boys Singles 2,singles,,L
+Court 4,Girls Singles 2,singles,,L
+Court 5,Boys Doubles 1,doubles,,W
+Court 6,Girls Doubles 1,doubles,,L
+Court 7,Boys Doubles 2,doubles,,L
+Court 8,Girls Doubles 2,doubles,,L
+Court 9,Mixed Doubles 1,mixed,,L
 
 Player Stats
 Player,Aces,Errors,Double-Faults,Winners
 Brandon,0,0,0,0
 Maddie,0,0,0,0
-OppBoy,0,0,0,
+OppBoy,0,0,0,0
 OppGirl,0,0,0,0
+
+Timeline
+Timestamp,Player,Action,Game Score,Set Score
