@@ -134,6 +134,7 @@
                         class="flex-none bg-slate-800 text-slate-400 text-base font-bold px-3 py-2 rounded-lg border border-slate-700 leading-none">☀</button>
                 <button onclick="showSaveMatchModal()" class="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors">Save Match</button>
                 <button onclick="showSeasonView()" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors border border-slate-600">Season</button>
+                <button id="courts-btn" onclick="showCourtsModal()" class="flex-1 sm:flex-none bg-slate-800 text-slate-400 text-[10px] font-bold px-4 py-2 rounded-lg uppercase border border-slate-700">Courts</button>
                 <button onclick="exportCSV()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg uppercase transition-colors shadow-lg">Export CSV</button>
                 <button onclick="showResetModal()" class="flex-1 sm:flex-none bg-slate-800 text-slate-400 text-[10px] font-bold px-4 py-2 rounded-lg uppercase border border-slate-700">Reset</button>
             </div>
@@ -266,6 +267,145 @@
         </div>
     </div>
 
+    <!-- Courts Modal -->
+    <div id="modal-courts" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 overflow-y-auto">
+        <div class="flex items-start justify-center min-h-full p-3 pt-5">
+        <div class="bg-slate-900 border border-slate-700 p-4 rounded-3xl max-w-sm w-full">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-lg font-black text-white uppercase tracking-tight">Court Results</h3>
+                <span id="live-score-display" class="text-lg font-black text-emerald-400"></span>
+            </div>
+
+            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Singles</p>
+            <div class="flex flex-col gap-2 mb-4">
+                <!-- Court 1 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 1</span><span class="text-[8px] text-slate-600">Boys Singles 1</span></div>
+                        <button id="live-c0-w" onclick="selectCourt(0,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c0-l" onclick="selectCourt(0,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <input id="court-p-0-0" type="text" placeholder="Player name..." oninput="updateCourtPlayer(0,0,this.value)"
+                           class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                </div>
+                <!-- Court 2 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 2</span><span class="text-[8px] text-slate-600">Girls Singles 1</span></div>
+                        <button id="live-c1-w" onclick="selectCourt(1,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c1-l" onclick="selectCourt(1,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <input id="court-p-1-0" type="text" placeholder="Player name..." oninput="updateCourtPlayer(1,0,this.value)"
+                           class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                </div>
+                <!-- Court 3 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 3</span><span class="text-[8px] text-slate-600">Boys Singles 2</span></div>
+                        <button id="live-c2-w" onclick="selectCourt(2,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c2-l" onclick="selectCourt(2,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <input id="court-p-2-0" type="text" placeholder="Player name..." oninput="updateCourtPlayer(2,0,this.value)"
+                           class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                </div>
+                <!-- Court 4 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 4</span><span class="text-[8px] text-slate-600">Girls Singles 2</span></div>
+                        <button id="live-c3-w" onclick="selectCourt(3,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c3-l" onclick="selectCourt(3,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <input id="court-p-3-0" type="text" placeholder="Player name..." oninput="updateCourtPlayer(3,0,this.value)"
+                           class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                </div>
+            </div>
+
+            <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Doubles</p>
+            <div class="flex flex-col gap-2 mb-4">
+                <!-- Court 5 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 5</span><span class="text-[8px] text-slate-600">Boys Doubles 1</span></div>
+                        <button id="live-c4-w" onclick="selectCourt(4,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c4-l" onclick="selectCourt(4,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="court-p-4-0" type="text" placeholder="Player 1..." oninput="updateCourtPlayer(4,0,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                        <input id="court-p-4-1" type="text" placeholder="Player 2..." oninput="updateCourtPlayer(4,1,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                    </div>
+                </div>
+                <!-- Court 6 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 6</span><span class="text-[8px] text-slate-600">Girls Doubles 1</span></div>
+                        <button id="live-c5-w" onclick="selectCourt(5,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c5-l" onclick="selectCourt(5,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="court-p-5-0" type="text" placeholder="Player 1..." oninput="updateCourtPlayer(5,0,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                        <input id="court-p-5-1" type="text" placeholder="Player 2..." oninput="updateCourtPlayer(5,1,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                    </div>
+                </div>
+                <!-- Court 7 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 7</span><span class="text-[8px] text-slate-600">Boys Doubles 2</span></div>
+                        <button id="live-c6-w" onclick="selectCourt(6,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c6-l" onclick="selectCourt(6,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="court-p-6-0" type="text" placeholder="Player 1..." oninput="updateCourtPlayer(6,0,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                        <input id="court-p-6-1" type="text" placeholder="Player 2..." oninput="updateCourtPlayer(6,1,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                    </div>
+                </div>
+                <!-- Court 8 -->
+                <div class="bg-slate-800/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 8</span><span class="text-[8px] text-slate-600">Girls Doubles 2</span></div>
+                        <button id="live-c7-w" onclick="selectCourt(7,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c7-l" onclick="selectCourt(7,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="court-p-7-0" type="text" placeholder="Player 1..." oninput="updateCourtPlayer(7,0,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                        <input id="court-p-7-1" type="text" placeholder="Player 2..." oninput="updateCourtPlayer(7,1,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-[8px] text-emerald-800 font-bold uppercase tracking-widest mb-2">Mixed</p>
+            <div class="flex flex-col gap-2 mb-5">
+                <!-- Court 9 -->
+                <div class="bg-emerald-950/30 border border-emerald-900/40 rounded-xl p-2.5">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex-1 min-w-0">
+                            <span id="live-c9-label" class="text-xs text-emerald-300 font-bold block">Court 9</span>
+                            <span class="text-[8px] text-emerald-700">Mixed Doubles 1</span>
+                        </div>
+                        <button id="live-c8-w" onclick="selectCourt(8,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="live-c8-l" onclick="selectCourt(8,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="court-p-8-0" type="text" placeholder="Player 1..." oninput="updateCourtPlayer(8,0,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-emerald-900/50 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                        <input id="court-p-8-1" type="text" placeholder="Player 2..." oninput="updateCourtPlayer(8,1,this.value)"
+                               class="flex-1 min-w-0 bg-slate-800 border border-emerald-900/50 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeCourtsModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Done</button>
+        </div>
+        </div>
+    </div>
+
     <!-- Reset Modal -->
     <div id="modal-reset" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-xs w-full text-center">
@@ -279,12 +419,82 @@
     </div>
 
     <!-- Save Match Modal -->
-    <div id="modal-save" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50">
-        <div class="flex items-center justify-center h-full p-6">
-        <div class="bg-slate-900 border border-slate-700 p-8 rounded-3xl max-w-xs w-full text-center">
-            <h3 class="text-xl font-bold mb-1">Save Match</h3>
-            <p id="save-match-desc" class="text-slate-400 text-sm mb-6"></p>
-            <div class="flex flex-col gap-2">
+    <div id="modal-save" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 overflow-y-auto">
+        <div class="flex items-start justify-center min-h-full p-4 pt-6">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-3xl max-w-xs w-full">
+            <h3 class="text-lg font-black text-white text-center mb-1 uppercase tracking-tight">Save Match</h3>
+            <p id="save-match-desc" class="text-slate-400 text-xs text-center mb-5"></p>
+
+            <!-- Court Results -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-[10px] text-slate-500 font-bold uppercase">Court Results</label>
+                    <span id="sm-score-display" class="text-xs font-black text-slate-400"></span>
+                </div>
+
+                <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Singles</p>
+                <div class="flex flex-col gap-1.5 mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 1</span><span class="text-[8px] text-slate-600">Boys Singles 1</span></div>
+                        <button id="sm-c0-w" onclick="selectCourt(0,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c0-l" onclick="selectCourt(0,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 2</span><span class="text-[8px] text-slate-600">Girls Singles 1</span></div>
+                        <button id="sm-c1-w" onclick="selectCourt(1,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c1-l" onclick="selectCourt(1,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 3</span><span class="text-[8px] text-slate-600">Boys Singles 2</span></div>
+                        <button id="sm-c2-w" onclick="selectCourt(2,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c2-l" onclick="selectCourt(2,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 4</span><span class="text-[8px] text-slate-600">Girls Singles 2</span></div>
+                        <button id="sm-c3-w" onclick="selectCourt(3,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c3-l" onclick="selectCourt(3,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                </div>
+
+                <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Doubles</p>
+                <div class="flex flex-col gap-1.5 mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 5</span><span class="text-[8px] text-slate-600">Boys Doubles 1</span></div>
+                        <button id="sm-c4-w" onclick="selectCourt(4,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c4-l" onclick="selectCourt(4,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 6</span><span class="text-[8px] text-slate-600">Girls Doubles 1</span></div>
+                        <button id="sm-c5-w" onclick="selectCourt(5,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c5-l" onclick="selectCourt(5,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 7</span><span class="text-[8px] text-slate-600">Boys Doubles 2</span></div>
+                        <button id="sm-c6-w" onclick="selectCourt(6,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c6-l" onclick="selectCourt(6,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 8</span><span class="text-[8px] text-slate-600">Girls Doubles 2</span></div>
+                        <button id="sm-c7-w" onclick="selectCourt(7,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c7-l" onclick="selectCourt(7,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                </div>
+
+                <p class="text-[8px] text-emerald-800 font-bold uppercase tracking-widest mb-2">Mixed</p>
+                <div class="flex flex-col gap-1.5 mb-2">
+                    <div class="flex items-center gap-2 bg-emerald-950/30 rounded-xl px-3 py-2">
+                        <div class="flex-1 min-w-0">
+                            <span id="sm-c9-label" class="text-xs text-emerald-300 font-bold block">Court 9</span>
+                            <span class="text-[8px] text-emerald-700">Mixed Doubles 1</span>
+                        </div>
+                        <button id="sm-c8-w" onclick="selectCourt(8,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                        <button id="sm-c8-l" onclick="selectCourt(8,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                    </div>
+                </div>
+                <p class="text-[9px] text-slate-600 mb-1">Tap W or L for each court. Overall result is calculated automatically.</p>
+            </div>
+
+            <div class="flex flex-col gap-2 mt-5">
                 <button onclick="confirmSaveMatch()" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase">Save to Season</button>
                 <button onclick="closeSaveModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
             </div>
@@ -413,7 +623,7 @@
                     <div class="flex flex-col gap-1.5">
                         <div class="flex items-center gap-2 bg-emerald-950/30 rounded-xl px-3 py-2">
                             <div class="flex-1 min-w-0">
-                                <span class="text-xs text-emerald-300 font-bold block">Court 9 — Brandon &amp; Maddie</span>
+                                <span id="qa-c9-label" class="text-xs text-emerald-300 font-bold block">Court 9</span>
                                 <span class="text-[8px] text-emerald-700">Mixed Doubles 1</span>
                             </div>
                             <button id="qa-c8-w" onclick="selectCourt(8,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
@@ -433,58 +643,62 @@
     </div>
 
     <!-- Edit Match Modal -->
-    <div id="modal-edit-match" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[70] flex items-start justify-center overflow-y-auto p-4 pt-6">
-        <div class="bg-slate-900 border border-slate-700 p-6 rounded-3xl w-full max-w-xs">
-            <h3 class="text-lg font-black text-white text-center mb-5 uppercase tracking-tight">Edit Match</h3>
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Date</label>
-                    <input type="date" id="em-date" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Opponent</label>
-                    <input type="text" id="em-opponent" placeholder="School name..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Court</label>
-                    <select id="em-court" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
-                        <option value="">— Unknown —</option>
-                        <option value="C1">Court 1 — Boys Singles 1</option>
-                        <option value="C2">Court 2 — Girls Singles 1</option>
-                        <option value="C3">Court 3 — Boys Singles 2</option>
-                        <option value="C4">Court 4 — Girls Singles 2</option>
-                        <option value="C5">Court 5 — Boys Doubles 1</option>
-                        <option value="C6">Court 6 — Girls Doubles 1</option>
-                        <option value="C7">Court 7 — Boys Doubles 2</option>
-                        <option value="C8">Court 8 — Girls Doubles 2</option>
-                        <option value="C9">Court 9 — Mixed Doubles 1</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-2">Set Scores <span class="text-slate-600 normal-case font-normal">(our score first)</span></label>
-                    <div class="flex flex-col gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-slate-500 w-12 flex-shrink-0">Set 1</span>
-                            <input type="number" id="em-s1-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
-                            <span class="text-slate-600 font-bold">–</span>
-                            <input type="number" id="em-s1-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-slate-500 w-12 flex-shrink-0">Set 2</span>
-                            <input type="number" id="em-s2-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
-                            <span class="text-slate-600 font-bold">–</span>
-                            <input type="number" id="em-s2-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-slate-500 w-12 leading-tight flex-shrink-0">Set 3 <span class="text-[8px] text-slate-600 block">10pt TB</span></span>
-                            <input type="number" id="em-s3-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
-                            <span class="text-slate-600 font-bold">–</span>
-                            <input type="number" id="em-s3-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+    <div id="modal-edit-match" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[70] flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-t-3xl sm:rounded-3xl w-full max-w-xs flex flex-col max-h-[92vh]">
+            <!-- Scrollable fields -->
+            <div class="overflow-y-auto p-6 flex-1">
+                <h3 class="text-lg font-black text-white text-center mb-5 uppercase tracking-tight">Edit Match</h3>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Date</label>
+                        <input type="date" id="em-date" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Opponent</label>
+                        <input type="text" id="em-opponent" placeholder="School name..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Court</label>
+                        <select id="em-court" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                            <option value="">— Unknown —</option>
+                            <option value="C1">Court 1 — Boys Singles 1</option>
+                            <option value="C2">Court 2 — Girls Singles 1</option>
+                            <option value="C3">Court 3 — Boys Singles 2</option>
+                            <option value="C4">Court 4 — Girls Singles 2</option>
+                            <option value="C5">Court 5 — Boys Doubles 1</option>
+                            <option value="C6">Court 6 — Girls Doubles 1</option>
+                            <option value="C7">Court 7 — Boys Doubles 2</option>
+                            <option value="C8">Court 8 — Girls Doubles 2</option>
+                            <option value="C9">Court 9 — Mixed Doubles 1</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 font-bold uppercase block mb-2">Set Scores <span class="text-slate-600 normal-case font-normal">(our score first)</span></label>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-slate-500 w-12 flex-shrink-0">Set 1</span>
+                                <input type="number" id="em-s1-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                                <span class="text-slate-600 font-bold">–</span>
+                                <input type="number" id="em-s1-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-slate-500 w-12 flex-shrink-0">Set 2</span>
+                                <input type="number" id="em-s2-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                                <span class="text-slate-600 font-bold">–</span>
+                                <input type="number" id="em-s2-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-slate-500 w-12 leading-tight flex-shrink-0">Set 3 <span class="text-[8px] text-slate-600 block">10pt TB</span></span>
+                                <input type="number" id="em-s3-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                                <span class="text-slate-600 font-bold">–</span>
+                                <input type="number" id="em-s3-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex flex-col gap-2 mt-5">
+            <!-- Always-visible action buttons -->
+            <div class="flex flex-col gap-2 p-4 border-t border-slate-800 flex-shrink-0">
                 <button onclick="submitEditMatch()" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase">Save Changes</button>
                 <button onclick="closeEditMatchModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
             </div>
@@ -550,6 +764,8 @@
         function onPlayerNameChange() {
             playerNames.P1 = document.getElementById('p1-input').value.trim() || 'P1';
             playerNames.P2 = document.getElementById('p2-input').value.trim() || 'P2';
+            const liveLabel = document.getElementById('live-c9-label');
+            if (liveLabel) liveLabel.innerText = 'Court 9 — ' + playerNames.P1 + ' & ' + playerNames.P2;
             updateUI();
         }
 
@@ -962,6 +1178,26 @@
 
         function showResetModal() { document.getElementById('modal-reset').classList.remove('hidden'); }
         function closeModal()     { document.getElementById('modal-reset').classList.add('hidden'); }
+
+        function showCourtsModal() {
+            const label = document.getElementById('live-c9-label');
+            if (label) label.innerText = 'Court 9 — ' + (playerNames.P1 || 'P1') + ' & ' + (playerNames.P2 || 'P2');
+            // Default Court 9 inputs from the header player names if still empty
+            if (!courtPlayerNames[8][0]) courtPlayerNames[8][0] = playerNames.P1 || '';
+            if (!courtPlayerNames[8][1]) courtPlayerNames[8][1] = playerNames.P2 || '';
+            // Populate all inputs from state
+            courtPlayerNames.forEach((names, ci) => {
+                names.forEach((name, pi) => {
+                    const el = document.getElementById('court-p-' + ci + '-' + pi);
+                    if (el) el.value = name;
+                });
+            });
+            updateCourtButtons();
+            document.getElementById('modal-courts').classList.remove('hidden');
+        }
+        function closeCourtsModal() {
+            document.getElementById('modal-courts').classList.add('hidden');
+        }
         function resetMatch() {
             playerStats = {
                 P1:   { ace:0, fault:0, df:0, pointWon:0 },
@@ -970,7 +1206,11 @@
                 OppB: { ace:0, fault:0, df:0, pointWon:0 }
             };
             history = [];
+            qaCourtSelections = [null, null, null, null, null, null, null, null, null];
+            courtPlayerNames  = [[''],[''],[''],[''],['',''],['',''],['',''],['',''],
+                                 [playerNames.P1 || '', playerNames.P2 || '']];
             resetScoringOnly();
+            updateCourtButtons();
             updateUI();
             closeModal();
         }
@@ -1094,12 +1334,14 @@
         // ── Save Match ────────────────────────────────────────────
         function showSaveMatchModal() {
             const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
-            const result   = setsWon.us > setsWon.them ? 'Win' : setsWon.them > setsWon.us ? 'Loss' : 'In Progress';
             const setStr   = setScore
                 .filter(s => s.us > 0 || s.them > 0)
                 .map(s => `${s.us}-${s.them}`).join(', ') || '0-0';
-            document.getElementById('save-match-desc').innerText =
-                `vs. ${opponent} — ${result} (${setStr})`;
+            document.getElementById('save-match-desc').innerText = `vs. ${opponent} (${setStr})`;
+            // Court selections carry forward from the live tracker — just sync the labels and button states
+            const c9Label = document.getElementById('sm-c9-label');
+            if (c9Label) c9Label.innerText = 'Court 9 — ' + (playerNames.P1 || 'P1') + ' & ' + (playerNames.P2 || 'P2');
+            updateCourtButtons();
             document.getElementById('modal-save').classList.remove('hidden');
         }
         function closeSaveModal() {
@@ -1107,8 +1349,25 @@
         }
         async function confirmSaveMatch() {
             const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
-            const result   = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?';
             const cfg      = getCourtConfig();
+
+            // Build courts from the selections made in the save modal / courts modal
+            const courts = QA_COURT_DEFS.map((def, i) => ({
+                id:     def.id,
+                label:  def.label,
+                desc:   def.desc,
+                type:   def.type,
+                note:   courtPlayerNames[i].filter(n => n.trim()).join(' & ') || null,
+                result: qaCourtSelections[i]
+            }));
+            const courtsPlayed = courts.filter(c => c.result !== null);
+            const courtWins    = courtsPlayed.filter(c => c.result === 'W').length;
+            const courtLosses  = courtsPlayed.filter(c => c.result === 'L').length;
+
+            // Result from courts if any were entered; otherwise fall back to set scores
+            const result = courtsPlayed.length > 0
+                ? (courtWins > courtLosses ? 'W' : courtLosses > courtWins ? 'L' : '?')
+                : (setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?');
 
             // Build playerStats with display names as keys (so CSVs show real names)
             const namedStats = {};
@@ -1128,6 +1387,7 @@
                 courtLabel:  `${cfg.label} — ${cfg.desc}`,
                 setsWon:     { ...setsWon },
                 setScores:   setScore.map(s => ({ ...s })),
+                courts:      courtsPlayed.length > 0 ? courts : null,
                 playerStats: namedStats,
                 timeline:    namedTimeline
             };
@@ -1252,7 +1512,15 @@
                 ? '<p class="text-slate-500 italic text-sm text-center py-8">No matches saved yet.<br>Track a match and tap Save Match.</p>'
                 : matches.map(m => {
                     const dateStr  = new Date(m.date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' });
-                    const resColor = m.result === 'W' ? 'bg-emerald-500/20 text-emerald-400' : m.result === 'L' ? 'bg-red-500/20 text-red-400' : 'bg-slate-700 text-slate-400';
+                    // Derive result from courts if available; fall back to stored result
+                    let displayResult = m.result;
+                    if (m.courts) {
+                        const cw = m.courts.filter(c => c.result === 'W').length;
+                        const cl = m.courts.filter(c => c.result === 'L').length;
+                        if (cw > cl) displayResult = 'W';
+                        else if (cl > cw) displayResult = 'L';
+                    }
+                    const resColor = displayResult === 'W' ? 'bg-emerald-500/20 text-emerald-400' : displayResult === 'L' ? 'bg-red-500/20 text-red-400' : 'bg-slate-700 text-slate-400';
                     const setStr = (m.setScores || []).filter(s => s.us > 0 || s.them > 0).map(s => s.us + '-' + s.them).join(', ');
                     let subtitleParts = [];
                     if (setStr) subtitleParts.push(setStr);
@@ -1263,7 +1531,7 @@
                     }
                     const subtitle = dateStr + (subtitleParts.length ? ' · ' + subtitleParts.join(' · ') : '');
                     return '<div onclick="showMatchDetail(' + m.id + ')" class="flex items-center gap-3 bg-slate-800 rounded-xl p-3 mb-2 active:opacity-70 cursor-pointer">' +
-                        '<div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ' + resColor + '">' + m.result + '</div>' +
+                        '<div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ' + resColor + '">' + displayResult + '</div>' +
                         '<div class="flex-1 min-w-0">' +
                             '<div class="font-bold text-white text-sm truncate">' + m.opponent + '</div>' +
                             '<div class="text-[10px] text-slate-500">' + subtitle + '</div>' +
@@ -1453,8 +1721,12 @@
                    || (() => { const { matches } = loadSeasonData(); return matches.find(x => x.id === emEditMatchId); })();
             if (!m) return;
 
-            const date     = document.getElementById('em-date').value || m.date;
-            const opponent = document.getElementById('em-opponent').value.trim() || m.opponent;
+            const date       = document.getElementById('em-date').value || m.date;
+            const opponent   = document.getElementById('em-opponent').value.trim() || m.opponent;
+            const selCourtId = document.getElementById('em-court').value;
+            const selCourt   = selCourtId ? COURT_CONFIGS.find(c => c.id === selCourtId) : null;
+            const newCourtId    = selCourt ? selCourt.id : (m.courtId || undefined);
+            const newCourtLabel = selCourt ? `${selCourt.label} — ${selCourt.desc}` : (m.courtLabel || undefined);
 
             const parseScore = (usId, themId) => ({
                 us:   parseInt(document.getElementById(usId).value)   || 0,
@@ -1475,7 +1747,7 @@
             });
             const result = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : (m.result || '?');
 
-            const updated = { ...m, date, opponent, setScores, setsWon, result };
+            const updated = { ...m, date, opponent, setScores, setsWon, result, courtId: newCourtId, courtLabel: newCourtLabel };
 
             closeEditMatchModal();
 
@@ -1591,8 +1863,14 @@
             { id: 'C8', label: 'Court 8', desc: 'Girls Doubles 2',  type: 'doubles' },
             { id: 'C9', label: 'Court 9', desc: 'Mixed Doubles 1',  type: 'mixed', note: 'Brandon & Maddie' }
         ];
-        let qaCourtSelections = [null, null, null, null, null, null, null, null, null];
+        let qaCourtSelections  = [null, null, null, null, null, null, null, null, null];
+        // Player names per court for our team: singles=[name], doubles=[p1,p2]
+        let courtPlayerNames = [[''],[''],[''],[''],['',''],['',''],['',''],['',''],['','']];
         let qaEditMatchId = null;
+
+        function updateCourtPlayer(courtIdx, playerIdx, value) {
+            courtPlayerNames[courtIdx][playerIdx] = value;
+        }
 
         function selectCourt(idx, result) {
             // Tap same button again to deselect
@@ -1603,17 +1881,37 @@
         function updateCourtButtons() {
             const won  = qaCourtSelections.filter(r => r === 'W').length;
             const lost = qaCourtSelections.filter(r => r === 'L').length;
-            const scoreEl = document.getElementById('qa-score-display');
-            if (scoreEl) scoreEl.innerText = (won + lost > 0) ? won + ' – ' + lost : '';
+            const scoreText = (won + lost > 0) ? won + ' – ' + lost : '';
+            ['qa-score-display', 'sm-score-display', 'live-score-display'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = scoreText;
+            });
+            const courtsBtn = document.getElementById('courts-btn');
+            if (courtsBtn) {
+                if (won + lost > 0) {
+                    courtsBtn.className = courtsBtn.className.replace('bg-slate-800 text-slate-400 border-slate-700', 'bg-emerald-900/60 text-emerald-400 border-emerald-700');
+                    courtsBtn.innerText = 'Courts ' + won + '–' + lost;
+                } else {
+                    courtsBtn.className = courtsBtn.className.replace('bg-emerald-900/60 text-emerald-400 border-emerald-700', 'bg-slate-800 text-slate-400 border-slate-700');
+                    courtsBtn.innerText = 'Courts';
+                }
+            }
 
             qaCourtSelections.forEach((sel, idx) => {
-                const wBtn = document.getElementById('qa-c' + idx + '-w');
-                const lBtn = document.getElementById('qa-c' + idx + '-l');
-                if (!wBtn || !lBtn) return;
-                wBtn.className = 'flex-1 py-2 rounded-lg font-black text-xs ' +
-                    (sel === 'W' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-500');
-                lBtn.className = 'flex-1 py-2 rounded-lg font-black text-xs ' +
-                    (sel === 'L' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-500');
+                const wClassModal = 'flex-1 py-2 rounded-lg font-black text-xs ' + (sel === 'W' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-500');
+                const lClassModal = 'flex-1 py-2 rounded-lg font-black text-xs ' + (sel === 'L' ? 'bg-red-600 text-white'    : 'bg-slate-800 text-slate-500');
+                const wClassLive  = 'w-10 py-1.5 rounded-lg font-black text-[10px] ' + (sel === 'W' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-500');
+                const lClassLive  = 'w-10 py-1.5 rounded-lg font-black text-[10px] ' + (sel === 'L' ? 'bg-red-600 text-white'    : 'bg-slate-800 text-slate-500');
+                for (const prefix of ['qa', 'sm']) {
+                    const wBtn = document.getElementById(prefix + '-c' + idx + '-w');
+                    const lBtn = document.getElementById(prefix + '-c' + idx + '-l');
+                    if (wBtn) wBtn.className = wClassModal;
+                    if (lBtn) lBtn.className = lClassModal;
+                }
+                const liveW = document.getElementById('live-c' + idx + '-w');
+                const liveL = document.getElementById('live-c' + idx + '-l');
+                if (liveW) liveW.className = wClassLive;
+                if (liveL) liveL.className = lClassLive;
             });
         }
 
@@ -1625,6 +1923,8 @@
             document.getElementById('qa-modal-title').innerText  = 'Add Match';
             document.getElementById('qa-header-fields').classList.remove('hidden');
             document.getElementById('qa-submit-btn').innerText   = 'Add to Season';
+            const c9Label = document.getElementById('qa-c9-label');
+            if (c9Label) c9Label.innerText = 'Court 9 — ' + (playerNames.P1 || 'P1') + ' & ' + (playerNames.P2 || 'P2');
             document.getElementById('modal-quick-add').classList.remove('hidden');
             updateCourtButtons();
         }
@@ -1643,6 +1943,8 @@
             document.getElementById('qa-modal-title').innerText  = m.opponent + ' — Courts';
             document.getElementById('qa-header-fields').classList.add('hidden');
             document.getElementById('qa-submit-btn').innerText   = 'Save Court Results';
+            const c9Label = document.getElementById('qa-c9-label');
+            if (c9Label) c9Label.innerText = 'Court 9 — ' + (playerNames.P1 || 'P1') + ' & ' + (playerNames.P2 || 'P2');
             document.getElementById('modal-quick-add').classList.remove('hidden');
             updateCourtButtons();
         }
@@ -1897,6 +2199,7 @@
 
         // Must run after all consts/functions are declared
         updateAdminBtn();
+        updateCourtButtons();
     </script>
 </body>
 </html>
