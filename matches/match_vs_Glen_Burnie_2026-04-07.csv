@@ -21,8 +21,8 @@ Player Stats
 Player,Aces,Errors,Double-Faults,Winners
 Brandon,0,0,0,0
 Maddie,0,0,0,0
-OppBoy,0,0,0,0
-OppGirl,0,0,0,0
+Opp. Boy,0,0,0,0
+Opp. Girl,0,0,0,0
 
 Timeline
 Timestamp,Player,Action,Game Score,Set Score
