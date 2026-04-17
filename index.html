@@ -1453,8 +1453,12 @@
                    || (() => { const { matches } = loadSeasonData(); return matches.find(x => x.id === emEditMatchId); })();
             if (!m) return;
 
-            const date     = document.getElementById('em-date').value || m.date;
-            const opponent = document.getElementById('em-opponent').value.trim() || m.opponent;
+            const date       = document.getElementById('em-date').value || m.date;
+            const opponent   = document.getElementById('em-opponent').value.trim() || m.opponent;
+            const selCourtId = document.getElementById('em-court').value;
+            const selCourt   = selCourtId ? COURT_CONFIGS.find(c => c.id === selCourtId) : null;
+            const newCourtId    = selCourt ? selCourt.id : (m.courtId || undefined);
+            const newCourtLabel = selCourt ? `${selCourt.label} — ${selCourt.desc}` : (m.courtLabel || undefined);
 
             const parseScore = (usId, themId) => ({
                 us:   parseInt(document.getElementById(usId).value)   || 0,
@@ -1475,7 +1479,7 @@
             });
             const result = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : (m.result || '?');
 
-            const updated = { ...m, date, opponent, setScores, setsWon, result };
+            const updated = { ...m, date, opponent, setScores, setsWon, result, courtId: newCourtId, courtLabel: newCourtLabel };
 
             closeEditMatchModal();
 
