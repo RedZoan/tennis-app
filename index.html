@@ -94,12 +94,39 @@
     <!-- Header & Match Settings -->
     <header class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 mb-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
+            <div class="w-full sm:w-auto">
                 <h1 class="text-xl font-black text-white uppercase tracking-tighter leading-none">Match Tracker <span class="text-emerald-500">V3</span></h1>
                 <div class="opp-row flex items-center gap-2 mt-2">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">Opponent:</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">Opponent:</span>
                     <input id="opp-school" type="text" placeholder="Enter School Name..."
-                           class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors">
+                           class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors w-full">
+                </div>
+                <div class="flex items-center gap-2 mt-1.5">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">Court:</span>
+                    <select id="court-select" onchange="onCourtChange()"
+                            class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors flex-1 min-w-0">
+                        <option value="C1">Court 1 — Boys Singles 1</option>
+                        <option value="C2">Court 2 — Girls Singles 1</option>
+                        <option value="C3">Court 3 — Boys Singles 2</option>
+                        <option value="C4">Court 4 — Girls Singles 2</option>
+                        <option value="C5">Court 5 — Boys Doubles 1</option>
+                        <option value="C6">Court 6 — Girls Doubles 1</option>
+                        <option value="C7">Court 7 — Boys Doubles 2</option>
+                        <option value="C8">Court 8 — Girls Doubles 2</option>
+                        <option value="C9" selected>Court 9 — Mixed Doubles 1</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4 mt-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">P1:</span>
+                        <input id="p1-input" type="text" placeholder="Player name" value="Brandon" oninput="onPlayerNameChange()"
+                               class="bg-transparent border-b border-slate-700 text-sm font-bold text-white focus:outline-none focus:border-emerald-500 w-24">
+                    </div>
+                    <div id="p2-input-row" class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">P2:</span>
+                        <input id="p2-input" type="text" placeholder="Player name" value="Maddie" oninput="onPlayerNameChange()"
+                               class="bg-transparent border-b border-slate-700 text-sm font-bold text-white focus:outline-none focus:border-emerald-500 w-24">
+                    </div>
                 </div>
             </div>
             <div class="flex gap-2 w-full sm:w-auto flex-wrap">
@@ -140,83 +167,83 @@
     <!-- Scoring Grid -->
     <main id="main-grid" class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-3 pb-32">
 
-        <!-- Brandon -->
-        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+        <!-- P1 (Our Team) -->
+        <div id="p1-card" class="player-card rounded-2xl p-4 border border-slate-700/50">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Our Team</span>
-                <span class="text-lg font-black text-white uppercase tracking-tight">Brandon</span>
+                <span id="p1-name" class="text-lg font-black text-white uppercase tracking-tight">Brandon</span>
             </div>
             <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="brandon-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="brandon-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="brandon-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="brandon-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="p1-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="p1-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="p1-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="p1-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="handlePoint('Brandon', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace</button>
-                <button onclick="handlePoint('Brandon', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Winner</button>
-                <button onclick="handlePoint('Brandon', 'fault', 'them')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase">Error</button>
-                <button onclick="handlePoint('Brandon', 'df', 'them')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase">D-Fault</button>
+                <button onclick="handlePoint('P1', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace</button>
+                <button onclick="handlePoint('P1', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Winner</button>
+                <button onclick="handlePoint('P1', 'fault', 'them')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase">Error</button>
+                <button onclick="handlePoint('P1', 'df', 'them')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase">D-Fault</button>
             </div>
         </div>
 
-        <!-- Maddie -->
-        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+        <!-- P2 (Our Team, doubles only) -->
+        <div id="p2-card" class="player-card rounded-2xl p-4 border border-slate-700/50">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Our Team</span>
-                <span class="text-lg font-black text-white uppercase tracking-tight">Maddie</span>
+                <span id="p2-name" class="text-lg font-black text-white uppercase tracking-tight">Maddie</span>
             </div>
             <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="maddie-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="maddie-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="maddie-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="maddie-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="p2-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="p2-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="p2-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="p2-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="handlePoint('Maddie', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace</button>
-                <button onclick="handlePoint('Maddie', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Winner</button>
-                <button onclick="handlePoint('Maddie', 'fault', 'them')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase">Error</button>
-                <button onclick="handlePoint('Maddie', 'df', 'them')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase">D-Fault</button>
+                <button onclick="handlePoint('P2', 'ace', 'us')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase">Ace</button>
+                <button onclick="handlePoint('P2', 'pointWon', 'us')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase">Winner</button>
+                <button onclick="handlePoint('P2', 'fault', 'them')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase">Error</button>
+                <button onclick="handlePoint('P2', 'df', 'them')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase">D-Fault</button>
             </div>
         </div>
 
-        <!-- Opponent Boy -->
-        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+        <!-- OppA -->
+        <div id="oppa-card" class="player-card rounded-2xl p-4 border border-slate-700/50">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Opponents</span>
-                <span class="text-lg font-black text-white uppercase tracking-tight">Opp. Boy</span>
+                <span id="oppa-name" class="text-lg font-black text-white uppercase tracking-tight">OppBoy</span>
             </div>
             <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppboy-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="oppboy-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppboy-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="oppboy-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppa-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="oppa-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppa-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="oppa-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="handlePoint('OppBoy', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace</button>
-                <button onclick="handlePoint('OppBoy', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Winner</button>
-                <button onclick="handlePoint('OppBoy', 'fault', 'us')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Error</button>
-                <button onclick="handlePoint('OppBoy', 'df', 'us')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
+                <button onclick="handlePoint('OppA', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace</button>
+                <button onclick="handlePoint('OppA', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Winner</button>
+                <button onclick="handlePoint('OppA', 'fault', 'us')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Error</button>
+                <button onclick="handlePoint('OppA', 'df', 'us')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
             </div>
         </div>
 
-        <!-- Opponent Girl -->
-        <div class="player-card rounded-2xl p-4 border border-slate-700/50">
+        <!-- OppB (doubles only) -->
+        <div id="oppb-card" class="player-card rounded-2xl p-4 border border-slate-700/50">
             <div class="flex justify-between items-center mb-3">
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-tight">Opponents</span>
-                <span class="text-lg font-black text-white uppercase tracking-tight">Opp. Girl</span>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Opponents</span>
+                <span id="oppb-name" class="text-lg font-black text-white uppercase tracking-tight">OppGirl</span>
             </div>
             <div class="stat-grid grid grid-cols-4 gap-2 mb-4 text-center">
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppgirl-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="oppgirl-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppgirl-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
-                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="oppgirl-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Ace</p><p id="oppb-ace" class="stat-num text-xl font-black text-emerald-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Error</p><p id="oppb-fault" class="stat-num text-xl font-black text-red-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">D-Flt</p><p id="oppb-df" class="stat-num text-xl font-black text-orange-400">0</p></div>
+                <div><p class="text-[8px] text-slate-500 font-bold uppercase">Win</p><p id="oppb-pointwon" class="stat-num text-xl font-black text-blue-400">0</p></div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="handlePoint('OppGirl', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace</button>
-                <button onclick="handlePoint('OppGirl', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Winner</button>
-                <button onclick="handlePoint('OppGirl', 'fault', 'us')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Error</button>
-                <button onclick="handlePoint('OppGirl', 'df', 'us')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
+                <button onclick="handlePoint('OppB', 'ace', 'them')" class="btn-active ace-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Ace</button>
+                <button onclick="handlePoint('OppB', 'pointWon', 'them')" class="btn-active point-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Winner</button>
+                <button onclick="handlePoint('OppB', 'fault', 'us')" class="btn-active fault-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">Error</button>
+                <button onclick="handlePoint('OppB', 'df', 'us')" class="btn-active df-btn py-4 rounded-xl font-black text-xs uppercase opacity-90">D-Fault</button>
             </div>
         </div>
 
@@ -271,7 +298,10 @@
         <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 flex-shrink-0">
             <button id="season-back-btn" onclick="seasonBack()" class="hidden text-slate-300 font-bold text-sm px-3 py-2 rounded-lg bg-slate-800">← Back</button>
             <div id="season-title" class="text-base font-black text-white uppercase tracking-tight">Season</div>
-            <button onclick="closeSeasonView()" class="text-slate-400 text-sm font-bold px-3 py-2 rounded-lg bg-slate-800">✕</button>
+            <div class="flex items-center gap-2">
+                <button id="admin-btn" onclick="showAdminModal()" class="text-slate-600 text-[10px] px-2 py-1.5 rounded-lg bg-slate-800/60 leading-none" title="Admin mode">🔑</button>
+                <button onclick="closeSeasonView()" class="text-slate-400 text-sm font-bold px-3 py-2 rounded-lg bg-slate-800">✕</button>
+            </div>
         </div>
         <div id="season-content" class="flex-1 overflow-y-auto p-4"></div>
         </div>
@@ -402,10 +432,127 @@
         </div>
     </div>
 
+    <!-- Edit Match Modal -->
+    <div id="modal-edit-match" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[70] flex items-start justify-center overflow-y-auto p-4 pt-6">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-3xl w-full max-w-xs">
+            <h3 class="text-lg font-black text-white text-center mb-5 uppercase tracking-tight">Edit Match</h3>
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Date</label>
+                    <input type="date" id="em-date" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Opponent</label>
+                    <input type="text" id="em-opponent" placeholder="School name..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">Court</label>
+                    <select id="em-court" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                        <option value="">— Unknown —</option>
+                        <option value="C1">Court 1 — Boys Singles 1</option>
+                        <option value="C2">Court 2 — Girls Singles 1</option>
+                        <option value="C3">Court 3 — Boys Singles 2</option>
+                        <option value="C4">Court 4 — Girls Singles 2</option>
+                        <option value="C5">Court 5 — Boys Doubles 1</option>
+                        <option value="C6">Court 6 — Girls Doubles 1</option>
+                        <option value="C7">Court 7 — Boys Doubles 2</option>
+                        <option value="C8">Court 8 — Girls Doubles 2</option>
+                        <option value="C9">Court 9 — Mixed Doubles 1</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold uppercase block mb-2">Set Scores <span class="text-slate-600 normal-case font-normal">(our score first)</span></label>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-slate-500 w-12 flex-shrink-0">Set 1</span>
+                            <input type="number" id="em-s1-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                            <span class="text-slate-600 font-bold">–</span>
+                            <input type="number" id="em-s1-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-slate-500 w-12 flex-shrink-0">Set 2</span>
+                            <input type="number" id="em-s2-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                            <span class="text-slate-600 font-bold">–</span>
+                            <input type="number" id="em-s2-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-slate-500 w-12 leading-tight flex-shrink-0">Set 3 <span class="text-[8px] text-slate-600 block">10pt TB</span></span>
+                            <input type="number" id="em-s3-us" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                            <span class="text-slate-600 font-bold">–</span>
+                            <input type="number" id="em-s3-them" min="0" max="99" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2 mt-5">
+                <button onclick="submitEditMatch()" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase">Save Changes</button>
+                <button onclick="closeEditMatchModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="modal-admin" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[70] flex items-center justify-center p-6">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-3xl max-w-xs w-full">
+            <h3 class="text-lg font-black text-white text-center mb-1 uppercase tracking-tight">Admin Mode</h3>
+            <p class="text-slate-500 text-[10px] text-center mb-5">Enter your GitHub Personal Access Token to push court results directly to GitHub so all visitors see them.</p>
+            <div id="admin-signed-in" class="hidden mb-4">
+                <div class="flex items-center gap-2 bg-emerald-950/50 border border-emerald-800/50 rounded-xl px-3 py-2.5 mb-3">
+                    <span class="text-emerald-400 text-sm">✓</span>
+                    <span class="text-emerald-300 text-xs font-bold">Admin mode active</span>
+                </div>
+                <button onclick="clearAdminToken()" class="w-full py-3 bg-red-900/40 text-red-400 rounded-xl font-bold text-sm uppercase border border-red-800/40">Sign Out</button>
+            </div>
+            <div id="admin-signed-out" class="mb-4">
+                <label class="text-[10px] text-slate-500 font-bold uppercase block mb-1">GitHub Token (PAT)</label>
+                <input type="password" id="admin-token-input" placeholder="github_pat_..."
+                       class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono text-emerald-400 focus:outline-none focus:border-emerald-500 mb-3">
+                <p class="text-[9px] text-slate-600 mb-3">Create a Fine-grained PAT with <strong class="text-slate-500">Contents: Read and write</strong> access to this repo.</p>
+                <button onclick="saveAdminToken()" class="w-full py-3 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase">Enable Admin Mode</button>
+            </div>
+            <button onclick="closeAdminModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Close</button>
+        </div>
+    </div>
+
     <!-- Hidden CSV import input -->
     <input type="file" id="csv-import-input" accept=".csv" class="hidden" onchange="handleCSVImport(event)">
 
     <script>
+        // ── Court configuration ───────────────────────────────────
+        const COURT_CONFIGS = [
+            { id:'C1', label:'Court 1', desc:'Boys Singles 1',  ourCount:1, oppLabels:['OppBoy'] },
+            { id:'C2', label:'Court 2', desc:'Girls Singles 1', ourCount:1, oppLabels:['OppGirl'] },
+            { id:'C3', label:'Court 3', desc:'Boys Singles 2',  ourCount:1, oppLabels:['OppBoy'] },
+            { id:'C4', label:'Court 4', desc:'Girls Singles 2', ourCount:1, oppLabels:['OppGirl'] },
+            { id:'C5', label:'Court 5', desc:'Boys Doubles 1',  ourCount:2, oppLabels:['OppBoy1','OppBoy2'] },
+            { id:'C6', label:'Court 6', desc:'Girls Doubles 1', ourCount:2, oppLabels:['OppGirl1','OppGirl2'] },
+            { id:'C7', label:'Court 7', desc:'Boys Doubles 2',  ourCount:2, oppLabels:['OppBoy1','OppBoy2'] },
+            { id:'C8', label:'Court 8', desc:'Girls Doubles 2', ourCount:2, oppLabels:['OppGirl1','OppGirl2'] },
+            { id:'C9', label:'Court 9', desc:'Mixed Doubles 1', ourCount:2, oppLabels:['OppBoy','OppGirl'] },
+        ];
+        let courtId = 'C9';
+        let playerNames = { P1: 'Brandon', P2: 'Maddie' };
+
+        function getCourtConfig() { return COURT_CONFIGS.find(c => c.id === courtId) || COURT_CONFIGS[8]; }
+        function getDisplayName(key) {
+            if (key === 'P1') return playerNames.P1 || 'P1';
+            if (key === 'P2') return playerNames.P2 || 'P2';
+            const cfg = getCourtConfig();
+            if (key === 'OppA') return cfg.oppLabels[0];
+            if (key === 'OppB') return cfg.oppLabels[1] || 'OppB';
+            return key;
+        }
+
+        function onCourtChange() {
+            courtId = document.getElementById('court-select').value;
+            updateUI();
+        }
+        function onPlayerNameChange() {
+            playerNames.P1 = document.getElementById('p1-input').value.trim() || 'P1';
+            playerNames.P2 = document.getElementById('p2-input').value.trim() || 'P2';
+            updateUI();
+        }
+
         // ── State ─────────────────────────────────────────────────
         let gamePoints = { us: 0, them: 0 };
         let setScore = [
@@ -418,10 +565,10 @@
         let matchOver = false;
 
         let playerStats = {
-            Brandon: { ace: 0, fault: 0, df: 0, pointWon: 0 },
-            Maddie:  { ace: 0, fault: 0, df: 0, pointWon: 0 },
-            OppBoy:  { ace: 0, fault: 0, df: 0, pointWon: 0 },
-            OppGirl: { ace: 0, fault: 0, df: 0, pointWon: 0 }
+            P1:   { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            P2:   { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            OppA: { ace: 0, fault: 0, df: 0, pointWon: 0 },
+            OppB: { ace: 0, fault: 0, df: 0, pointWon: 0 }
         };
 
         let history = [];
@@ -590,12 +737,24 @@
         }
 
         function updateUI() {
+            // Update stat counters (element IDs match lowercase key, e.g. p1-ace, oppa-pointwon)
             for (const player in playerStats) {
                 for (const stat in playerStats[player]) {
                     const el = document.getElementById(`${player.toLowerCase()}-${stat.toLowerCase()}`);
                     if (el) el.innerText = playerStats[player][stat];
                 }
             }
+
+            // Update player name displays and show/hide cards based on court
+            const cfg = getCourtConfig();
+            const isDoubles = cfg.ourCount === 2;
+            document.getElementById('p1-name').innerText   = playerNames.P1 || 'P1';
+            document.getElementById('p2-name').innerText   = playerNames.P2 || 'P2';
+            document.getElementById('oppa-name').innerText = cfg.oppLabels[0];
+            document.getElementById('oppb-name').innerText = cfg.oppLabels[1] || '';
+            document.getElementById('p2-card').style.display    = isDoubles ? '' : 'none';
+            document.getElementById('oppb-card').style.display  = isDoubles ? '' : 'none';
+            document.getElementById('p2-input-row').style.display = isDoubles ? '' : 'none';
 
             const isTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6) || currentSetIndex === 2;
             document.getElementById('game-score-us').innerText   = isTiebreak ? gamePoints.us   : (SCORE_LABELS[gamePoints.us]   || "0");
@@ -624,7 +783,7 @@
                 const colorMap = { ace: 'text-emerald-400', pointWon: 'text-blue-400', fault: 'text-red-400', df: 'text-orange-400' };
                 feed.innerHTML = history.slice(0, 8).map(h =>
                     `<div class="flex-shrink-0 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full whitespace-nowrap shadow-sm">` +
-                    `<span class="font-bold text-white">${h.player}:</span> ` +
+                    `<span class="font-bold text-white">${getDisplayName(h.player)}:</span> ` +
                     `<span class="${colorMap[h.type]} font-black uppercase text-[8px]">${labelMap[h.type] || h.type.toUpperCase()}</span></div>`
                 ).join('');
             }
@@ -639,27 +798,36 @@
         function formatCsvCell(val) { return `="${val}"`; }
 
         function exportCSV() {
-            const school = document.getElementById('opp-school').value || "Unknown School";
-            const date   = new Date().toISOString().split('T')[0];
-            let csv = `\uFEFFTennis Match Report,Date: ${date},Opponent: ${school}\n\n`;
+            const school  = document.getElementById('opp-school').value || "Unknown School";
+            const date    = new Date().toISOString().split('T')[0];
+            const cfg     = getCourtConfig();
+            const ourLabel = cfg.ourCount === 2
+                ? `${playerNames.P1} / ${playerNames.P2}`
+                : playerNames.P1;
+            let csv = `\uFEFFTennis Match Report,Date: ${date},Opponent: ${school},Court: ${cfg.label} — ${cfg.desc}\n\n`;
 
             csv += `Final Score Summary\n`;
             csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
-            csv += `Our Team (Brandon/Maddie),${setsWon.us},${formatCsvCell(setScore[0].us+'-'+setScore[0].them)},${formatCsvCell(setScore[1].us+'-'+setScore[1].them)},${formatCsvCell(setScore[2].us+'-'+setScore[2].them)}\n`;
+            csv += `Our Team (${ourLabel}),${setsWon.us},${formatCsvCell(setScore[0].us+'-'+setScore[0].them)},${formatCsvCell(setScore[1].us+'-'+setScore[1].them)},${formatCsvCell(setScore[2].us+'-'+setScore[2].them)}\n`;
             csv += `${school},${setsWon.them},${formatCsvCell(setScore[0].them+'-'+setScore[0].us)},${formatCsvCell(setScore[1].them+'-'+setScore[1].us)},${formatCsvCell(setScore[2].them+'-'+setScore[2].us)}\n\n`;
 
             csv += `Player Stats\n`;
             csv += `Player,Aces,Errors,Double-Faults,Winners\n`;
-            for (const p in playerStats) {
-                csv += `${p},${playerStats[p].ace},${playerStats[p].fault},${playerStats[p].df},${playerStats[p].pointWon}\n`;
-            }
+            const activePlayers = cfg.ourCount === 2
+                ? ['P1','P2','OppA','OppB']
+                : ['P1','OppA'];
+            activePlayers.forEach(key => {
+                const name = getDisplayName(key);
+                const s = playerStats[key];
+                csv += `${name},${s.ace},${s.fault},${s.df},${s.pointWon}\n`;
+            });
 
             csv += `\nTimeline\n`;
             csv += `Timestamp,Player,Action,Game Score,Set Score\n`;
             const actionMap = { pointWon: 'Winner', df: 'Double-Fault', fault: 'Error', ace: 'Ace' };
             [...history].reverse().forEach(h => {
                 const actionName = actionMap[h.type] || (h.type.charAt(0).toUpperCase() + h.type.slice(1));
-                csv += `${h.timestamp},${h.player},${actionName},${formatCsvCell(h.csvGameScore)},${formatCsvCell(h.csvSetScore)}\n`;
+                csv += `${h.timestamp},${getDisplayName(h.player)},${actionName},${formatCsvCell(h.csvGameScore)},${formatCsvCell(h.csvSetScore)}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -670,22 +838,17 @@
             a.click();
         }
 
-        function exportMatchCSV(matchId) {
-            const m = allSeasonMatches.find(x => x.id === matchId);
-            if (!m) return;
-
-            // For GitHub matches, apply any local court override
-            const overrides = loadCourtOverrides();
-            const courts = (m._gh && overrides[matchId]) ? overrides[matchId] : (m.courts || null);
-
-            const ss = m.setScores || [{us:0,them:0},{us:0,them:0},{us:0,them:0}];
+        // Builds the CSV string for a match (with optional court override)
+        function buildMatchCSVContent(m, courtsOverride) {
+            const courts = courtsOverride !== undefined ? courtsOverride : (m.courts || null);
+            const ss  = m.setScores || [{us:0,them:0},{us:0,them:0},{us:0,them:0}];
             const opp = m.opponent;
 
-            let csv = `\uFEFFTennis Match Report,Date: ${m.date},Opponent: ${opp}\n\n`;
-
+            let csv = `\uFEFFTennis Match Report,Date: ${m.date},Opponent: ${opp},CourtId: ${m.courtId || ''},Court: ${m.courtLabel || ''}\n\n`;
             csv += `Final Score Summary\n`;
             csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
-            csv += `Our Team (Brandon/Maddie),${m.setsWon.us},${formatCsvCell(ss[0].us+'-'+ss[0].them)},${formatCsvCell(ss[1].us+'-'+ss[1].them)},${formatCsvCell(ss[2].us+'-'+ss[2].them)}\n`;
+            const ourTeamLabel = m.courtLabel ? `Our Team (${m.courtLabel.split('—')[1]?.trim() || 'Our Team'})` : 'Our Team';
+            csv += `${ourTeamLabel},${m.setsWon.us},${formatCsvCell(ss[0].us+'-'+ss[0].them)},${formatCsvCell(ss[1].us+'-'+ss[1].them)},${formatCsvCell(ss[2].us+'-'+ss[2].them)}\n`;
             csv += `${opp},${m.setsWon.them},${formatCsvCell(ss[0].them+'-'+ss[0].us)},${formatCsvCell(ss[1].them+'-'+ss[1].us)},${formatCsvCell(ss[2].them+'-'+ss[2].us)}\n\n`;
 
             if (courts && courts.some(c => c.result)) {
@@ -700,7 +863,7 @@
             csv += `Player Stats\n`;
             csv += `Player,Aces,Errors,Double-Faults,Winners\n`;
             const ps = m.playerStats || {};
-            for (const p of ['Brandon', 'Maddie', 'OppBoy', 'OppGirl']) {
+            for (const p of Object.keys(ps)) {
                 const s = ps[p] || {ace:0, fault:0, df:0, pointWon:0};
                 csv += `${p},${s.ace},${s.fault},${s.df},${s.pointWon}\n`;
             }
@@ -713,22 +876,98 @@
                 csv += `${h.timestamp},${h.player},${action},${formatCsvCell(h.csvGameScore)},${formatCsvCell(h.csvSetScore)}\n`;
             });
 
+            return csv;
+        }
+
+        function exportMatchCSV(matchId) {
+            const m = allSeasonMatches.find(x => x.id === matchId);
+            if (!m) return;
+            const overrides = loadCourtOverrides();
+            const courts = (m._gh && overrides[matchId]) ? overrides[matchId] : (m.courts || null);
+            const csv = buildMatchCSVContent(m, courts);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
             a.href = url;
-            a.download = `match_vs_${opp.replace(/\s+/g,'_')}_${m.date}.csv`;
+            a.download = `match_vs_${m.opponent.replace(/\s+/g,'_')}_${m.date}.csv`;
             a.click();
+        }
+
+        // Overwrites a GitHub match CSV with updated content (courts, scores, etc.)
+        async function pushCourtsToGitHub(match, courts) {
+            const token = getAdminToken();
+            if (!token || !match._ghFile || !match._ghSha) return { ok: false, error: 'missing credentials or file info' };
+
+            const csvContent = buildMatchCSVContent(match, courts);
+            const encoded = btoa(unescape(encodeURIComponent(csvContent)));
+
+            try {
+                const res = await fetch(
+                    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}/${match._ghFile}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Update match: ${match.opponent} (${match.date})`,
+                            content: encoded,
+                            sha: match._ghSha
+                        })
+                    }
+                );
+                if (res.status === 401) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    updateAdminBtn();
+                    return { ok: false, error: 'Token rejected — admin mode disabled' };
+                }
+                return { ok: res.ok, error: res.ok ? null : `GitHub error ${res.status}` };
+            } catch (e) {
+                return { ok: false, error: e.message };
+            }
+        }
+
+        // Creates a brand-new CSV file in the GitHub matches/ folder
+        async function pushNewMatchToGitHub(matchRecord) {
+            const token = getAdminToken();
+            if (!token) return { ok: false, error: 'not in admin mode' };
+            const csvContent = buildMatchCSVContent(matchRecord, matchRecord.courts || null);
+            const encoded    = btoa(unescape(encodeURIComponent(csvContent)));
+            const filename   = `match_vs_${matchRecord.opponent.replace(/[^a-zA-Z0-9]/g,'_')}_${matchRecord.date}.csv`;
+            try {
+                const res = await fetch(
+                    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}/${filename}`,
+                    {
+                        method: 'PUT',
+                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: `Add match: ${matchRecord.opponent} (${matchRecord.date})`,
+                            content: encoded
+                            // No sha field = create new file
+                        })
+                    }
+                );
+                if (res.status === 401) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    updateAdminBtn();
+                    return { ok: false, error: 'Token rejected — admin mode disabled' };
+                }
+                if (res.status === 422) return { ok: false, error: 'File already exists on GitHub' };
+                return { ok: res.ok, error: res.ok ? null : `GitHub error ${res.status}` };
+            } catch (e) {
+                return { ok: false, error: e.message };
+            }
         }
 
         function showResetModal() { document.getElementById('modal-reset').classList.remove('hidden'); }
         function closeModal()     { document.getElementById('modal-reset').classList.add('hidden'); }
         function resetMatch() {
             playerStats = {
-                Brandon: { ace:0, fault:0, df:0, pointWon:0 },
-                Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
-                OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
-                OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
+                P1:   { ace:0, fault:0, df:0, pointWon:0 },
+                P2:   { ace:0, fault:0, df:0, pointWon:0 },
+                OppA: { ace:0, fault:0, df:0, pointWon:0 },
+                OppB: { ace:0, fault:0, df:0, pointWon:0 }
             };
             history = [];
             resetScoringOnly();
@@ -748,7 +987,55 @@
             localStorage.setItem(SEASON_KEY, JSON.stringify(data));
         }
 
-        // ── Court overrides (for GitHub-sourced matches) ──────────
+        // ── Admin mode (GitHub write-back) ───────────────────────
+        const ADMIN_TOKEN_KEY = 'ghAdminToken';
+        function getAdminToken() { return localStorage.getItem(ADMIN_TOKEN_KEY) || null; }
+        function isAdmin()       { return !!getAdminToken(); }
+
+        function updateAdminBtn() {
+            const btn = document.getElementById('admin-btn');
+            if (!btn) return;
+            if (isAdmin()) {
+                btn.textContent = '🛡';
+                btn.classList.remove('text-slate-600');
+                btn.classList.add('text-emerald-500');
+            } else {
+                btn.textContent = '🔑';
+                btn.classList.remove('text-emerald-500');
+                btn.classList.add('text-slate-600');
+            }
+        }
+
+        function showAdminModal() {
+            document.getElementById('admin-token-input').value = '';
+            if (isAdmin()) {
+                document.getElementById('admin-signed-in').classList.remove('hidden');
+                document.getElementById('admin-signed-out').classList.add('hidden');
+            } else {
+                document.getElementById('admin-signed-in').classList.add('hidden');
+                document.getElementById('admin-signed-out').classList.remove('hidden');
+            }
+            document.getElementById('modal-admin').classList.remove('hidden');
+        }
+        function closeAdminModal() {
+            document.getElementById('modal-admin').classList.add('hidden');
+        }
+        function saveAdminToken() {
+            const t = document.getElementById('admin-token-input').value.trim();
+            if (!t) { showToast('Please enter a token'); return; }
+            localStorage.setItem(ADMIN_TOKEN_KEY, t);
+            closeAdminModal();
+            updateAdminBtn();
+            showToast('Admin mode enabled');
+        }
+        function clearAdminToken() {
+            localStorage.removeItem(ADMIN_TOKEN_KEY);
+            closeAdminModal();
+            updateAdminBtn();
+            showToast('Signed out of admin mode');
+        }
+
+        // ── Court overrides (local fallback for non-admin users) ──
         const COURTS_KEY = 'tennisCourtOverrides';
         function loadCourtOverrides() {
             try { return JSON.parse(localStorage.getItem(COURTS_KEY)) || {}; }
@@ -790,9 +1077,10 @@
                         const r    = await fetch(f.download_url);
                         const text = await r.text();
                         const m    = parseMatchCSV(text);
-                        m.id     = ghStableId(f.name);   // stable ID
-                        m._gh    = true;                  // marks as GitHub-sourced
+                        m.id      = ghStableId(f.name);  // stable ID
+                        m._gh     = true;                 // marks as GitHub-sourced
                         m._ghFile = f.name;
+                        m._ghSha  = f.sha;               // needed for write-back via API
                         return m;
                     } catch { return null; }
                 }));
@@ -817,24 +1105,51 @@
         function closeSaveModal() {
             document.getElementById('modal-save').classList.add('hidden');
         }
-        function confirmSaveMatch() {
+        async function confirmSaveMatch() {
             const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
             const result   = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?';
+            const cfg      = getCourtConfig();
+
+            // Build playerStats with display names as keys (so CSVs show real names)
+            const namedStats = {};
+            const activePlayers = cfg.ourCount === 2 ? ['P1','P2','OppA','OppB'] : ['P1','OppA'];
+            activePlayers.forEach(key => {
+                namedStats[getDisplayName(key)] = { ...playerStats[key] };
+            });
+            // Build timeline with display names
+            const namedTimeline = history.map(h => ({ ...h, player: getDisplayName(h.player) }));
+
             const matchRecord = {
                 id:          Date.now(),
                 date:        new Date().toISOString().split('T')[0],
                 opponent,
                 result,
+                courtId,
+                courtLabel:  `${cfg.label} — ${cfg.desc}`,
                 setsWon:     { ...setsWon },
                 setScores:   setScore.map(s => ({ ...s })),
-                playerStats: JSON.parse(JSON.stringify(playerStats)),
-                timeline:    JSON.parse(JSON.stringify(history))
+                playerStats: namedStats,
+                timeline:    namedTimeline
             };
-            const data = loadSeasonData();
-            data.matches.unshift(matchRecord);
-            saveSeasonData(data);
             closeSaveModal();
-            showToast('Match saved to season!');
+            if (isAdmin()) {
+                showToast('Uploading to GitHub…');
+                const { ok, error } = await pushNewMatchToGitHub(matchRecord);
+                if (ok) {
+                    ghMatchCache = null;
+                    showToast('Match saved to GitHub!');
+                } else {
+                    showToast('GitHub failed — saved locally. ' + error);
+                    const data = loadSeasonData();
+                    data.matches.unshift(matchRecord);
+                    saveSeasonData(data);
+                }
+            } else {
+                const data = loadSeasonData();
+                data.matches.unshift(matchRecord);
+                saveSeasonData(data);
+                showToast('Match saved locally (enable admin mode to push to GitHub)');
+            }
         }
 
         // ── Season view ───────────────────────────────────────────
@@ -857,14 +1172,29 @@
             seasonStack.pop();
             renderSeasonMain(ghMatchCache || []);
         }
+        function switchSeasonStatsTab(tab) {
+            ['overall', 'byopp'].forEach(t => {
+                const panel = document.getElementById('sstab-' + t);
+                const btn   = document.getElementById('sstab-btn-' + t);
+                if (!panel || !btn) return;
+                const active = t === tab;
+                panel.classList.toggle('hidden', !active);
+                btn.classList.toggle('bg-slate-700', active);
+                btn.classList.toggle('text-white',   active);
+                btn.classList.toggle('text-slate-500', !active);
+            });
+        }
 
         function renderSeasonMain(ghMatches = []) {
             const { matches: localMatches } = loadSeasonData();
             const overrides = loadCourtOverrides();
-            // Apply any saved court overrides to GitHub matches
-            const mergedGh = ghMatches.map(m =>
-                overrides[m.id] ? { ...m, courts: overrides[m.id] } : m
-            );
+            // GitHub courts take priority. Local overrides only apply when GitHub has no court data.
+            // This ensures that when the admin pushes a full court breakdown to GitHub, all visitors
+            // see the authoritative data on refresh — even if they previously saved partial local data.
+            const mergedGh = ghMatches.map(m => {
+                if (m.courts) return m;                                          // GitHub has data → use it
+                return overrides[m.id] ? { ...m, courts: overrides[m.id] } : m; // no GitHub data → use local
+            });
             // Local matches not on GitHub are appended (dedup by date+opponent)
             const ghKeys    = new Set(mergedGh.map(m => m.date + '|' + m.opponent.trim().toLowerCase()));
             const localOnly = localMatches.filter(m => !ghKeys.has(m.date + '|' + m.opponent.trim().toLowerCase()));
@@ -876,20 +1206,47 @@
             const wins   = matches.filter(m => m.result === 'W').length;
             const losses = matches.filter(m => m.result === 'L').length;
 
-            // Aggregate season totals per player
-            const totals = {
-                Brandon: { ace:0, fault:0, df:0, pointWon:0 },
-                Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
-                OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
-                OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
-            };
+            // Aggregate season totals — collect all player names dynamically
+            const totals = {};
+            // byOpp: { opponent: { courtLabel: { playerName: stats } } }
+            const byOpp = {};
             matches.forEach(m => {
-                for (const p in totals) {
-                    if (m.playerStats && m.playerStats[p]) {
-                        for (const s in totals[p]) totals[p][s] += m.playerStats[p][s] || 0;
-                    }
+                if (!m.playerStats) return;
+                const courtKey = m.courtLabel || 'Unknown Court';
+                const oppKey   = m.opponent   || 'Unknown';
+                for (const p in m.playerStats) {
+                    // overall
+                    if (!totals[p]) totals[p] = { ace:0, fault:0, df:0, pointWon:0 };
+                    for (const s in totals[p]) totals[p][s] += m.playerStats[p][s] || 0;
+                    // by opponent → by court
+                    if (!byOpp[oppKey]) byOpp[oppKey] = {};
+                    if (!byOpp[oppKey][courtKey]) byOpp[oppKey][courtKey] = {};
+                    if (!byOpp[oppKey][courtKey][p]) byOpp[oppKey][courtKey][p] = { ace:0, fault:0, df:0, pointWon:0 };
+                    for (const s in byOpp[oppKey][courtKey][p]) byOpp[oppKey][courtKey][p][s] += m.playerStats[p][s] || 0;
                 }
             });
+
+            // Helper: render a player-stats table from a { playerName: stats } object
+            function buildStatsTable(obj) {
+                const rows = Object.keys(obj).map(p => {
+                    const t = obj[p];
+                    return '<tr class="border-t border-slate-800">' +
+                        '<td class="text-left py-2 pr-3 font-bold text-white text-xs">' + p + '</td>' +
+                        '<td class="py-2 px-2 text-emerald-400 font-black text-center">' + t.ace + '</td>' +
+                        '<td class="py-2 px-2 text-red-400 font-black text-center">' + t.fault + '</td>' +
+                        '<td class="py-2 px-2 text-orange-400 font-black text-center">' + t.df + '</td>' +
+                        '<td class="py-2 px-2 text-blue-400 font-black text-center">' + t.pointWon + '</td>' +
+                        '</tr>';
+                }).join('');
+                return '<div class="overflow-x-auto"><table class="w-full text-xs">' +
+                    '<thead><tr class="text-[9px] text-slate-500 uppercase">' +
+                    '<th class="text-left py-2 pr-3 font-bold">Player</th>' +
+                    '<th class="py-2 px-2 font-bold text-emerald-400 text-center">Ace</th>' +
+                    '<th class="py-2 px-2 font-bold text-red-400 text-center">Error</th>' +
+                    '<th class="py-2 px-2 font-bold text-orange-400 text-center">D-Flt</th>' +
+                    '<th class="py-2 px-2 font-bold text-blue-400 text-center">Win</th>' +
+                    '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+            }
 
             const matchListHtml = matches.length === 0
                 ? '<p class="text-slate-500 italic text-sm text-center py-8">No matches saved yet.<br>Track a match and tap Save Match.</p>'
@@ -914,38 +1271,47 @@
                         '<div class="text-slate-600">›</div></div>';
                 }).join('');
 
-            const statRows = ['Brandon', 'Maddie', 'OppBoy', 'OppGirl'].map(p => {
-                const label = p === 'OppBoy' ? 'Opp. Boy' : p === 'OppGirl' ? 'Opp. Girl' : p;
-                const t = totals[p];
-                return '<tr class="border-t border-slate-800">' +
-                    '<td class="text-left py-2 pr-3 font-bold text-white text-xs">' + label + '</td>' +
-                    '<td class="py-2 px-2 text-emerald-400 font-black text-center">' + t.ace + '</td>' +
-                    '<td class="py-2 px-2 text-red-400 font-black text-center">' + t.fault + '</td>' +
-                    '<td class="py-2 px-2 text-orange-400 font-black text-center">' + t.df + '</td>' +
-                    '<td class="py-2 px-2 text-blue-400 font-black text-center">' + t.pointWon + '</td>' +
-                    '</tr>';
-            }).join('');
+            const hasStats = Object.keys(totals).length > 0;
 
-            const statsTableHtml = matches.length === 0 ? '' :
-                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-6 mb-3">Season Totals</h3>' +
-                '<div class="overflow-x-auto"><table class="w-full text-xs">' +
-                '<thead><tr class="text-[9px] text-slate-500 uppercase">' +
-                '<th class="text-left py-2 pr-3 font-bold">Player</th>' +
-                '<th class="py-2 px-2 font-bold text-emerald-400 text-center">Ace</th>' +
-                '<th class="py-2 px-2 font-bold text-red-400 text-center">Error</th>' +
-                '<th class="py-2 px-2 font-bold text-orange-400 text-center">D-Flt</th>' +
-                '<th class="py-2 px-2 font-bold text-blue-400 text-center">Win</th>' +
-                '</tr></thead><tbody>' + statRows + '</tbody></table></div>';
+            // By-opponent HTML — court shown as sub-header within each opponent section
+            const byOppHtml = Object.keys(byOpp).map(opp => {
+                const courtSections = Object.keys(byOpp[opp]).map(court =>
+                    '<div class="mb-3">' +
+                    '<div class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">' + court + '</div>' +
+                    buildStatsTable(byOpp[opp][court]) +
+                    '</div>'
+                ).join('');
+                return '<div class="mb-5">' +
+                    '<div class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">' + opp + '</div>' +
+                    courtSections +
+                    '</div>';
+            }).join('') || '<p class="text-slate-500 italic text-xs text-center py-4">No opponent stats recorded yet.</p>';
+
+            const statsTableHtml = !hasStats ? '' :
+                '<div class="mt-6">' +
+                '<div class="flex items-center justify-between mb-3">' +
+                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Season Totals</h3>' +
+                '<div class="flex gap-1">' +
+                '<button id="sstab-btn-overall" onclick="switchSeasonStatsTab(\'overall\')" class="text-[9px] font-bold px-2 py-1 rounded-lg bg-slate-700 text-white">Overall</button>' +
+                '<button id="sstab-btn-byopp"   onclick="switchSeasonStatsTab(\'byopp\')"   class="text-[9px] font-bold px-2 py-1 rounded-lg text-slate-500">By Opp.</button>' +
+                '</div></div>' +
+                '<div id="sstab-overall">' + buildStatsTable(totals) + '</div>' +
+                '<div id="sstab-byopp"   class="hidden">' + byOppHtml   + '</div>' +
+                '</div>';
 
             document.getElementById('season-content').innerHTML =
                 '<div class="text-center mb-6">' +
                 '<div class="text-5xl font-black text-white">' + wins + '<span class="text-slate-600 mx-3 text-3xl">–</span>' + losses + '</div>' +
                 '<div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Wins – Losses · ' + matches.length + ' match' + (matches.length !== 1 ? 'es' : '') + '</div>' +
                 '</div>' +
-                '<button onclick="showQuickAddModal()" class="w-full mb-5 bg-slate-800 border border-dashed border-slate-600 hover:border-slate-500 text-slate-400 text-xs font-bold py-3 rounded-xl uppercase tracking-wide">+ Add Match Manually</button>' +
+                (isAdmin()
+                    ? '<button onclick="showQuickAddModal()" class="w-full mb-5 bg-slate-800 border border-dashed border-emerald-800/50 hover:border-emerald-700 text-emerald-600 text-xs font-bold py-3 rounded-xl uppercase tracking-wide">+ Add Match</button>'
+                    : '') +
                 '<div class="flex items-center justify-between mb-3">' +
                 '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Match History</h3>' +
-                '<button onclick="triggerCSVImport()" class="text-[10px] font-bold text-slate-400 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg">Import CSV</button>' +
+                (isAdmin()
+                    ? '<button onclick="triggerCSVImport()" class="text-[10px] font-bold text-emerald-500 bg-emerald-950/50 border border-emerald-800/50 px-3 py-1.5 rounded-lg">Import CSV</button>'
+                    : '') +
                 '</div>' +
                 matchListHtml + statsTableHtml;
         }
@@ -977,11 +1343,10 @@
                     '</div>'
                 ).join('');
 
-            const statRows = ['Brandon', 'Maddie', 'OppBoy', 'OppGirl'].map(p => {
-                const label = p === 'OppBoy' ? 'Opp. Boy' : p === 'OppGirl' ? 'Opp. Girl' : p;
-                const s = (m.playerStats && m.playerStats[p]) || { ace:0, fault:0, df:0, pointWon:0 };
+            const statRows = Object.keys(m.playerStats || {}).map(p => {
+                const s = m.playerStats[p] || { ace:0, fault:0, df:0, pointWon:0 };
                 return '<tr class="border-t border-slate-800">' +
-                    '<td class="text-left py-2 pr-3 font-bold text-white text-xs">' + label + '</td>' +
+                    '<td class="text-left py-2 pr-3 font-bold text-white text-xs">' + p + '</td>' +
                     '<td class="py-2 px-2 text-emerald-400 font-black text-center">' + s.ace + '</td>' +
                     '<td class="py-2 px-2 text-red-400 font-black text-center">' + s.fault + '</td>' +
                     '<td class="py-2 px-2 text-orange-400 font-black text-center">' + s.df + '</td>' +
@@ -1020,11 +1385,18 @@
             if (!scoreSubtitle) scoreSubtitle = m.setsWon.us + '–' + m.setsWon.them + ' sets';
 
             const editCourtsLabel = m.courts ? 'Edit Courts' : 'Add Courts';
+            // GitHub matches: only admins can edit courts (changes push back to GitHub)
+            // Local matches: anyone can edit courts (saved to localStorage)
+            const showEditCourts = !m._gh || isAdmin();
             const actionsHtml = '<div class="flex flex-col gap-1.5 items-end">' +
                 '<button onclick="exportMatchCSV(' + m.id + ')" class="text-blue-400 text-[10px] font-bold bg-blue-500/10 px-3 py-2 rounded-lg">Export CSV</button>' +
-                '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' +
-                (m._gh ? '<span class="text-[10px] text-slate-600 italic text-right pr-1">From GitHub</span>'
-                       : '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>') +
+                (isAdmin() ? '<button onclick="showEditMatchModal(' + m.id + ')" class="text-yellow-400 text-[10px] font-bold bg-yellow-500/10 px-3 py-2 rounded-lg">Edit Match</button>' : '') +
+                (showEditCourts ? '<button onclick="showEditCourtsModal(' + m.id + ')" class="text-emerald-400 text-[10px] font-bold bg-emerald-500/10 px-3 py-2 rounded-lg">' + editCourtsLabel + '</button>' : '') +
+                (m._gh
+                    ? (isAdmin()
+                        ? '<button onclick="confirmDeleteGitHubMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>'
+                        : '<span class="text-[10px] text-slate-600 italic text-right pr-1">From GitHub</span>')
+                    : '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>') +
                 '</div>';
 
             document.getElementById('season-content').innerHTML =
@@ -1050,12 +1422,160 @@
                 '<div>' + timelineHtml + '</div>';
         }
 
+        // ── Edit Match ────────────────────────────────────────────
+        let emEditMatchId = null;
+
+        function showEditMatchModal(matchId) {
+            const m = allSeasonMatches.find(x => x.id === matchId)
+                   || (() => { const { matches } = loadSeasonData(); return matches.find(x => x.id === matchId); })();
+            if (!m) return;
+            emEditMatchId = matchId;
+            document.getElementById('em-date').value     = m.date || '';
+            document.getElementById('em-opponent').value = m.opponent || '';
+            document.getElementById('em-court').value    = m.courtId || '';
+            const ss = m.setScores || [{us:0,them:0},{us:0,them:0},{us:0,them:0}];
+            document.getElementById('em-s1-us').value    = ss[0]?.us ?? '';
+            document.getElementById('em-s1-them').value  = ss[0]?.them ?? '';
+            document.getElementById('em-s2-us').value    = ss[1]?.us ?? '';
+            document.getElementById('em-s2-them').value  = ss[1]?.them ?? '';
+            document.getElementById('em-s3-us').value    = ss[2]?.us > 0 || ss[2]?.them > 0 ? ss[2].us   : '';
+            document.getElementById('em-s3-them').value  = ss[2]?.us > 0 || ss[2]?.them > 0 ? ss[2].them : '';
+            document.getElementById('modal-edit-match').classList.remove('hidden');
+        }
+
+        function closeEditMatchModal() {
+            document.getElementById('modal-edit-match').classList.add('hidden');
+            emEditMatchId = null;
+        }
+
+        async function submitEditMatch() {
+            const m = allSeasonMatches.find(x => x.id === emEditMatchId)
+                   || (() => { const { matches } = loadSeasonData(); return matches.find(x => x.id === emEditMatchId); })();
+            if (!m) return;
+
+            const date     = document.getElementById('em-date').value || m.date;
+            const opponent = document.getElementById('em-opponent').value.trim() || m.opponent;
+
+            const parseScore = (usId, themId) => ({
+                us:   parseInt(document.getElementById(usId).value)   || 0,
+                them: parseInt(document.getElementById(themId).value) || 0
+            });
+            const s1 = parseScore('em-s1-us', 'em-s1-them');
+            const s2 = parseScore('em-s2-us', 'em-s2-them');
+            const s3 = parseScore('em-s3-us', 'em-s3-them');
+            const setScores = [s1, s2, s3];
+
+            // Recalculate sets won — a set is won if you have more games
+            const setsWon = { us: 0, them: 0 };
+            [s1, s2, s3].forEach(s => {
+                if (s.us > 0 || s.them > 0) {
+                    if (s.us > s.them) setsWon.us++;
+                    else if (s.them > s.us) setsWon.them++;
+                }
+            });
+            const result = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : (m.result || '?');
+
+            const updated = { ...m, date, opponent, setScores, setsWon, result };
+
+            closeEditMatchModal();
+
+            if (m._gh && isAdmin()) {
+                // Check if date or opponent changed — that changes the filename
+                const oldFilename = m._ghFile;
+                const newFilename = `match_vs_${opponent.replace(/[^a-zA-Z0-9]/g,'_')}_${date}.csv`;
+                const needsRename = oldFilename !== newFilename;
+
+                showToast('Saving to GitHub…');
+
+                if (needsRename) {
+                    // GitHub has no rename API: create new file, then delete old one
+                    const { ok: createOk, error: createErr } = await pushNewMatchToGitHub(updated);
+                    if (!createOk) {
+                        showToast('GitHub save failed: ' + createErr);
+                        return;
+                    }
+                    // Delete the old file using its original SHA
+                    const token = getAdminToken();
+                    await fetch(
+                        `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}/${oldFilename}`,
+                        {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                message: `Rename match file to ${newFilename}`,
+                                sha: m._ghSha
+                            })
+                        }
+                    );
+                } else {
+                    // Same filename — just overwrite in place
+                    const { ok, error } = await pushCourtsToGitHub(updated, updated.courts || null);
+                    if (!ok) {
+                        showToast('GitHub save failed: ' + error);
+                        return;
+                    }
+                }
+
+                ghMatchCache = null;
+                const ghMatches = await fetchGitHubMatches();
+                renderSeasonMain(ghMatches);
+                // Find the match by new stable ID so the detail view works after a rename
+                const newId = needsRename ? ghStableId(newFilename) : emEditMatchId;
+                showMatchDetail(newId);
+                showToast('Match updated on GitHub!');
+            } else if (!m._gh) {
+                const data = loadSeasonData();
+                const idx  = data.matches.findIndex(x => x.id === emEditMatchId);
+                if (idx !== -1) data.matches[idx] = { ...data.matches[idx], date, opponent, setScores, setsWon, result };
+                saveSeasonData(data);
+                renderSeasonMain(ghMatchCache || []);
+                showMatchDetail(emEditMatchId);
+                showToast('Match updated!');
+            }
+        }
+
         function confirmDeleteMatch(id) {
             if (confirm('Remove this match from the season?')) {
                 const data = loadSeasonData();
                 data.matches = data.matches.filter(m => m.id !== id);
                 saveSeasonData(data);
                 seasonBack();
+            }
+        }
+
+        async function confirmDeleteGitHubMatch(id) {
+            const m = allSeasonMatches.find(x => x.id === id);
+            if (!m || !m._ghFile || !m._ghSha) return;
+            if (!confirm(`Delete "${m.opponent} (${m.date})" from GitHub? This cannot be undone.`)) return;
+            showToast('Deleting from GitHub…');
+            const token = getAdminToken();
+            try {
+                const res = await fetch(
+                    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}/${m._ghFile}`,
+                    {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: `Delete match: ${m.opponent} (${m.date})`,
+                            sha: m._ghSha
+                        })
+                    }
+                );
+                if (res.ok) {
+                    ghMatchCache = null;
+                    seasonBack();
+                    const ghMatches = await fetchGitHubMatches();
+                    renderSeasonMain(ghMatches);
+                    showToast('Match deleted from GitHub');
+                } else if (res.status === 401) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    updateAdminBtn();
+                    showToast('Token rejected — admin mode disabled');
+                } else {
+                    showToast('Delete failed: GitHub error ' + res.status);
+                }
+            } catch (e) {
+                showToast('Delete failed: ' + e.message);
             }
         }
 
@@ -1131,7 +1651,7 @@
             document.getElementById('modal-quick-add').classList.add('hidden');
         }
 
-        function submitQuickAdd() {
+        async function submitQuickAdd() {
             const courts = QA_COURT_DEFS.map((def, i) => ({
                 id:     def.id,
                 label:  def.label,
@@ -1148,10 +1668,26 @@
             // ── Edit mode: update courts on an existing match ──────
             if (qaEditMatchId !== null) {
                 const ghM = allSeasonMatches.find(x => x.id === qaEditMatchId && x._gh);
-                if (ghM) {
-                    // GitHub match — save courts as a local override
-                    saveCourtOverride(qaEditMatchId, courts);
-                } else {
+                if (ghM && isAdmin()) {
+                    // Admin + GitHub match: push updated CSV directly to GitHub
+                    closeQuickAddModal();
+                    showToast('Saving to GitHub…');
+                    const { ok, error } = await pushCourtsToGitHub(ghM, courts);
+                    if (ok) {
+                        // Invalidate cache so the re-fetch picks up the new SHA and content
+                        ghMatchCache = null;
+                        const ghMatches = await fetchGitHubMatches();
+                        renderSeasonMain(ghMatches);
+                        showMatchDetail(qaEditMatchId);
+                        showToast('Court results saved to GitHub!');
+                    } else {
+                        showToast('GitHub save failed: ' + error);
+                        // Fall back to local override so the data isn't lost
+                        saveCourtOverride(qaEditMatchId, courts);
+                        renderSeasonMain(ghMatchCache || []);
+                        showMatchDetail(qaEditMatchId);
+                    }
+                } else if (!ghM) {
                     // Local match — update in localStorage directly
                     const data = loadSeasonData();
                     const idx  = data.matches.findIndex(x => x.id === qaEditMatchId);
@@ -1162,12 +1698,12 @@
                         }
                         saveSeasonData(data);
                     }
+                    const editId = qaEditMatchId;
+                    closeQuickAddModal();
+                    renderSeasonMain(ghMatchCache || []);
+                    showMatchDetail(editId);
+                    showToast('Court results saved!');
                 }
-                const editId = qaEditMatchId;
-                closeQuickAddModal();
-                renderSeasonMain(ghMatchCache || []);
-                showMatchDetail(editId);
-                showToast('Court results saved!');
                 return;
             }
 
@@ -1181,21 +1717,27 @@
                 courts,
                 setsWon:    { us: won, them: lost },
                 setScores:  [{ us:0, them:0 }, { us:0, them:0 }, { us:0, them:0 }],
-                playerStats: {
-                    Brandon: { ace:0, fault:0, df:0, pointWon:0 },
-                    Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
-                    OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
-                    OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
-                },
+                playerStats: {},
                 timeline: []
             };
 
-            const data = loadSeasonData();
-            data.matches.push(matchRecord);
-            saveSeasonData(data);
             closeQuickAddModal();
-            renderSeasonMain(ghMatchCache || []);
-            showToast('Match added!');
+            if (isAdmin()) {
+                showToast('Uploading to GitHub…');
+                const { ok, error } = await pushNewMatchToGitHub(matchRecord);
+                if (ok) {
+                    ghMatchCache = null;
+                    const ghMatches = await fetchGitHubMatches();
+                    renderSeasonMain(ghMatches);
+                    showToast('Match added to GitHub!');
+                } else {
+                    showToast('GitHub failed: ' + error);
+                    renderSeasonMain(ghMatchCache || []);
+                }
+            } else {
+                renderSeasonMain(ghMatchCache || []);
+                showToast('Match added locally');
+            }
         }
 
         // ── CSV Import ───────────────────────────────────────────
@@ -1208,14 +1750,27 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const match = parseMatchCSV(e.target.result);
-                    const data  = loadSeasonData();
-                    data.matches.unshift(match);
-                    saveSeasonData(data);
-                    renderSeasonMain(ghMatchCache || []);
-                    showToast('Match imported!');
+                    if (isAdmin()) {
+                        showToast('Uploading to GitHub…');
+                        const { ok, error } = await pushNewMatchToGitHub(match);
+                        if (ok) {
+                            ghMatchCache = null;
+                            const ghMatches = await fetchGitHubMatches();
+                            renderSeasonMain(ghMatches);
+                            showToast('CSV uploaded to GitHub!');
+                        } else {
+                            showToast('GitHub failed: ' + error);
+                        }
+                    } else {
+                        const data = loadSeasonData();
+                        data.matches.unshift(match);
+                        saveSeasonData(data);
+                        renderSeasonMain(ghMatchCache || []);
+                        showToast('Match imported locally');
+                    }
                 } catch (err) {
                     alert('Could not parse this CSV. Make sure it was exported from this app.');
                 }
@@ -1236,22 +1791,21 @@
 
             // ── Header row ──────────────────────────────────────
             const headerCells = parseLine(lines[0]);
-            let date     = new Date().toISOString().split('T')[0];
-            let opponent = 'Unknown Opponent';
+            let date       = new Date().toISOString().split('T')[0];
+            let opponent   = 'Unknown Opponent';
+            let courtLabel = '';
+            let courtId    = '';
             headerCells.forEach(cell => {
-                if (cell.startsWith('Date:'))     date     = cell.replace('Date:', '').trim();
-                if (cell.startsWith('Opponent:')) opponent = cell.replace('Opponent:', '').trim();
+                if (cell.startsWith('Date:'))     date       = cell.replace('Date:', '').trim();
+                if (cell.startsWith('Opponent:')) opponent   = cell.replace('Opponent:', '').trim();
+                if (cell.startsWith('Court:'))    courtLabel = cell.replace('Court:', '').trim();
+                if (cell.startsWith('CourtId:'))  courtId    = cell.replace('CourtId:', '').trim();
             });
 
             // ── Working state ────────────────────────────────────
             let setsWon   = { us: 0, them: 0 };
             let setScores = [{ us:0, them:0 }, { us:0, them:0 }, { us:0, them:0 }];
-            let playerStats = {
-                Brandon: { ace:0, fault:0, df:0, pointWon:0 },
-                Maddie:  { ace:0, fault:0, df:0, pointWon:0 },
-                OppBoy:  { ace:0, fault:0, df:0, pointWon:0 },
-                OppGirl: { ace:0, fault:0, df:0, pointWon:0 }
-            };
+            let playerStats = {};
             let timeline = [];
             let courts   = [];
 
@@ -1285,14 +1839,14 @@
                 }
 
                 if (section === 'stats') {
-                    if (cells[0] === 'Player') continue;
+                    if (cells[0] === 'Player' || !cells[0]) continue;
                     const p = cells[0];
-                    if (playerStats[p]) {
-                        playerStats[p].ace      = parseInt(cells[1]) || 0;
-                        playerStats[p].fault    = parseInt(cells[2]) || 0;
-                        playerStats[p].df       = parseInt(cells[3]) || 0;
-                        playerStats[p].pointWon = parseInt(cells[4]) || 0;
-                    }
+                    playerStats[p] = {
+                        ace:      parseInt(cells[1]) || 0,
+                        fault:    parseInt(cells[2]) || 0,
+                        df:       parseInt(cells[3]) || 0,
+                        pointWon: parseInt(cells[4]) || 0
+                    };
                 }
 
                 if (section === 'courts') {
@@ -1310,7 +1864,7 @@
                     if (cells[0] === 'Timestamp' || !cells[0] || !cells[1]) continue;
                     const type      = actionMap[cells[2]] || 'ace';
                     const player    = cells[1];
-                    const isOurs    = ['Brandon', 'Maddie'].includes(player);
+                    const isOurs    = !player.toLowerCase().startsWith('opp');
                     const winsPoint = ['ace', 'pointWon'].includes(type);
                     timeline.push({
                         timestamp:    cells[0],
@@ -1328,8 +1882,8 @@
             timeline.reverse();
 
             const result = setsWon.us > setsWon.them ? 'W' : setsWon.them > setsWon.us ? 'L' : '?';
-            return { id: Date.now(), date, opponent, result, setsWon, setScores, playerStats, timeline,
-                     courts: courts.length ? courts : null };
+            return { id: Date.now(), date, opponent, courtId: courtId || undefined, courtLabel: courtLabel || undefined,
+                     result, setsWon, setScores, playerStats, timeline, courts: courts.length ? courts : null };
         }
 
         // ── Toast ─────────────────────────────────────────────────
@@ -1340,6 +1894,9 @@
             clearTimeout(toast._timer);
             toast._timer = setTimeout(() => toast.classList.add('hidden'), 2000);
         }
+
+        // Must run after all consts/functions are declared
+        updateAdminBtn();
     </script>
 </body>
 </html>
