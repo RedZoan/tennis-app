@@ -7,14 +7,14 @@ Arundel,2,="4-6",="7-5",="10-6"
 
 Court Results
 Court,Description,Type,Note,Result
-Court 1,Boys Singles 1,singles,,
-Court 2,Girls Singles 1,singles,,
-Court 3,Boys Singles 2,singles,,
-Court 4,Girls Singles 2,singles,,
-Court 5,Boys Doubles 1,doubles,,
-Court 6,Girls Doubles 1,doubles,,
-Court 7,Boys Doubles 2,doubles,,
-Court 8,Girls Doubles 2,doubles,,
+Court 1,Boys Singles 1,singles,,W
+Court 2,Girls Singles 1,singles,,L
+Court 3,Boys Singles 2,singles,,W
+Court 4,Girls Singles 2,singles,,L
+Court 5,Boys Doubles 1,doubles,,W
+Court 6,Girls Doubles 1,doubles,,W
+Court 7,Boys Doubles 2,doubles,,W
+Court 8,Girls Doubles 2,doubles,,L
 Court 9,Mixed Doubles 1,mixed,Brandon & Maddie,L
 
 Player Stats
