@@ -1896,6 +1896,7 @@
             // GitHub matches: only admins can edit courts (changes push back to GitHub)
             // Local matches: anyone can edit courts (saved to localStorage)
             const showEditCourts = !m._gh || isAdmin();
+            const hasTimeline = m.timeline && m.timeline.length > 0;
             const actionsHtml = '<div class="flex flex-col gap-1.5 items-end">' +
                 '<button onclick="exportMatchCSV(' + m.id + ')" class="text-blue-400 text-[10px] font-bold bg-blue-500/10 px-3 py-2 rounded-lg">Export CSV</button>' +
                 (isAdmin() ? '<button onclick="showEditMatchModal(' + m.id + ')" class="text-yellow-400 text-[10px] font-bold bg-yellow-500/10 px-3 py-2 rounded-lg">Edit Match</button>' : '') +
@@ -1906,6 +1907,44 @@
                         : '<span class="text-[10px] text-slate-600 italic text-right pr-1">From GitHub</span>')
                     : '<button onclick="confirmDeleteMatch(' + m.id + ')" class="text-red-400 text-[10px] font-bold bg-red-500/10 px-3 py-2 rounded-lg">Delete</button>') +
                 '</div>';
+
+            // Analysis section: tabbed Chart / Timeline when timeline exists, plain Timeline otherwise
+            const chipBtn = (id, onclick, extra, label) =>
+                '<button id="' + id + '" onclick="' + onclick + '" class="px-3 py-1.5 rounded-full text-xs font-bold border ' + extra + '">' + label + '</button>';
+            const scopeBtn = (id, onclick, label) =>
+                '<button id="' + id + '" onclick="' + onclick + '" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 text-slate-500 transition-colors">' + label + '</button>';
+
+            const chartPanelHtml = hasTimeline
+                ? '<div id="md-panel-chart">' +
+                  '<div class="mb-3"><p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-2">Players</p>' +
+                  '<div id="pa-player-chips" class="flex flex-wrap gap-1.5"></div></div>' +
+                  '<div class="mb-3"><p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-2">Stats</p>' +
+                  '<div class="flex flex-wrap gap-1.5">' +
+                  chipBtn('pa-stat-ace',      "paTog('stat','ace')",      'border-emerald-700 bg-emerald-800/50 text-emerald-300', 'Ace') +
+                  chipBtn('pa-stat-pointWon', "paTog('stat','pointWon')", 'border-blue-700 bg-blue-800/50 text-blue-300',          'Winner') +
+                  chipBtn('pa-stat-fault',    "paTog('stat','fault')",    'border-red-700 bg-red-800/50 text-red-300',             'Error') +
+                  chipBtn('pa-stat-df',       "paTog('stat','df')",       'border-orange-700 bg-orange-800/50 text-orange-300',    'D-Fault') +
+                  '</div></div>' +
+                  '<div class="mb-3"><p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-2">Scope</p>' +
+                  '<div class="flex gap-1.5 flex-wrap">' +
+                  scopeBtn('pa-scope-all',  "paSetScope('all')",  'All')   +
+                  scopeBtn('pa-scope-set1', "paSetScope('set1')", 'Set 1') +
+                  scopeBtn('pa-scope-set2', "paSetScope('set2')", 'Set 2') +
+                  scopeBtn('pa-scope-set3', "paSetScope('set3')", 'Set 3') +
+                  '</div></div>' +
+                  '<div id="pa-game-row" class="mb-3 hidden"><p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-2">Game</p>' +
+                  '<div id="pa-game-chips" class="flex flex-wrap gap-1.5"></div></div>' +
+                  '<div id="pa-chart" class="mt-1"></div>' +
+                  '</div>' +
+                  '<div id="md-panel-timeline" class="hidden">' + timelineHtml + '</div>'
+                : '<div>' + timelineHtml + '</div>';
+
+            const tabsHtml = hasTimeline
+                ? '<div class="flex gap-2 mb-4">' +
+                  '<button id="md-tab-chart"    onclick="switchMdTab(\'chart\')"    class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-700 text-white    transition-colors">Chart</button>' +
+                  '<button id="md-tab-timeline" onclick="switchMdTab(\'timeline\')" class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 text-slate-500 transition-colors">Timeline</button>' +
+                  '</div>'
+                : '';
 
             document.getElementById('season-content').innerHTML =
                 '<div class="flex items-start justify-between mb-5">' +
@@ -1926,8 +1965,209 @@
                 '<th class="py-2 px-2 font-bold text-orange-400 text-center">D-Flt</th>' +
                 '<th class="py-2 px-2 font-bold text-blue-400 text-center">Win</th>' +
                 '</tr></thead><tbody>' + statRows + '</tbody></table></div>' +
-                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Timeline</h3>' +
-                '<div>' + timelineHtml + '</div>';
+                '<h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">' + (hasTimeline ? 'Analysis' : 'Timeline') + '</h3>' +
+                tabsHtml +
+                chartPanelHtml;
+
+            if (hasTimeline) initPointAnalysis(m);
+        }
+
+        // ── Point Analysis ────────────────────────────────────────
+        let paMatchId        = null;
+        let paTaggedEvents   = [];
+        let paPlayers        = {};   // { playerName: bool }
+        let paStats          = { ace: true, pointWon: true, fault: true, df: true };
+        let paScope          = 'all';  // 'all' | 'set1' | 'set2' | 'set3'
+        let paGame           = 'all';  // 'all' | <number>
+        let _paPlayerList    = [];     // ordered list of player names
+
+        const PA_LABELS = { ace: 'Ace', pointWon: 'Winner', fault: 'Error', df: 'D-Fault' };
+        const PA_BG     = { ace: 'bg-emerald-500', pointWon: 'bg-blue-500', fault: 'bg-red-500', df: 'bg-orange-500' };
+        const PA_TEXT   = { ace: 'text-emerald-400', pointWon: 'text-blue-400', fault: 'text-red-400', df: 'text-orange-400' };
+
+        // Player chip colour pairs: [text class, bg class]
+        const PA_PLAYER_STYLES = [
+            ['text-purple-300', 'border-purple-700', 'bg-purple-800/50'],
+            ['text-pink-300',   'border-pink-700',   'bg-pink-800/50'],
+            ['text-cyan-300',   'border-cyan-700',   'bg-cyan-800/50'],
+            ['text-amber-300',  'border-amber-700',  'bg-amber-800/50'],
+        ];
+
+        function paTagTimeline(timeline) {
+            const events = [...timeline].reverse(); // oldest first
+            let curSet = null, curGame = 1, afterGameWon = false;
+            return events.map(h => {
+                const sm  = (h.csvSetScore || '').match(/Set\s+(\d+)/i);
+                const set = sm ? parseInt(sm[1]) : 1;
+                if (set !== curSet) {
+                    curSet = set; curGame = 1; afterGameWon = false;
+                } else if (afterGameWon) {
+                    curGame++; afterGameWon = false;
+                }
+                afterGameWon = (h.csvGameScore === 'Game Won');
+                return { ...h, set, game: curGame };
+            });
+        }
+
+        function switchMdTab(tab) {
+            ['chart', 'timeline'].forEach(t => {
+                const panel = document.getElementById('md-panel-' + t);
+                const btn   = document.getElementById('md-tab-' + t);
+                if (panel) panel.classList.toggle('hidden', t !== tab);
+                if (btn) {
+                    btn.classList.toggle('bg-slate-700', t === tab);
+                    btn.classList.toggle('text-white',   t === tab);
+                    btn.classList.toggle('text-slate-500', t !== tab);
+                }
+            });
+        }
+
+        function initPointAnalysis(m) {
+            paMatchId = m.id;
+            paStats   = { ace: true, pointWon: true, fault: true, df: true };
+            paScope   = 'all';
+            paGame    = 'all';
+
+            paTaggedEvents = paTagTimeline(m.timeline);
+
+            // Collect players in order of first appearance
+            _paPlayerList = [];
+            paTaggedEvents.forEach(h => { if (!_paPlayerList.includes(h.player)) _paPlayerList.push(h.player); });
+            paPlayers = {};
+            _paPlayerList.forEach(p => { paPlayers[p] = true; });
+
+            // Player chips
+            document.getElementById('pa-player-chips').innerHTML = _paPlayerList.map((p, i) => {
+                const [tc, bc, bgc] = PA_PLAYER_STYLES[i % PA_PLAYER_STYLES.length];
+                return '<button id="pa-p-' + i + '" onclick="paTog(\'player\',' + i + ')"' +
+                       ' class="px-3 py-1.5 rounded-full text-xs font-bold border ' + tc + ' ' + bc + ' ' + bgc + ' transition-opacity">' + p + '</button>';
+            }).join('');
+
+            // Stat chips — all active on load
+            Object.keys(paStats).forEach(s => paUpdateStatChip(s));
+
+            // Scope — reset to 'all'
+            ['all','set1','set2','set3'].forEach(s => paSyncScopeBtn(s, s === 'all'));
+
+            document.getElementById('pa-game-row').classList.add('hidden');
+            renderPointAnalysis();
+        }
+
+        function paTog(type, idx) {
+            if (type === 'player') {
+                const p = _paPlayerList[idx];
+                paPlayers[p] = !paPlayers[p];
+                const btn = document.getElementById('pa-p-' + idx);
+                if (btn) btn.classList.toggle('opacity-30', !paPlayers[p]);
+            } else {
+                paStats[idx] = !paStats[idx];
+                paUpdateStatChip(idx);
+            }
+            renderPointAnalysis();
+        }
+
+        function paUpdateStatChip(stat) {
+            const btn = document.getElementById('pa-stat-' + stat);
+            if (btn) btn.classList.toggle('opacity-30', !paStats[stat]);
+        }
+
+        function paSetScope(scope) {
+            paScope = scope;
+            paGame  = 'all';
+            ['all','set1','set2','set3'].forEach(s => paSyncScopeBtn(s, s === scope));
+            renderPointAnalysis();
+        }
+
+        function paSyncScopeBtn(id, active) {
+            const btn = document.getElementById('pa-scope-' + id);
+            if (!btn) return;
+            btn.classList.toggle('bg-slate-700', active);
+            btn.classList.toggle('text-white',   active);
+            btn.classList.toggle('text-slate-500', !active);
+        }
+
+        function paSetGame(game) {
+            paGame = game;
+            renderPointAnalysis();
+        }
+
+        function renderPointAnalysis() {
+            const setNum = paScope === 'all' ? null : parseInt(paScope.replace('set', ''));
+            const gameRow = document.getElementById('pa-game-row');
+
+            // Build / hide game picker
+            if (!setNum || setNum === 3) {
+                gameRow.classList.add('hidden');
+            } else {
+                const gamesInSet = [...new Set(
+                    paTaggedEvents.filter(h => h.set === setNum).map(h => h.game)
+                )].sort((a, b) => a - b);
+
+                const chip = (label, val) =>
+                    '<button onclick="paSetGame(' + JSON.stringify(val) + ')"' +
+                    ' class="px-2.5 py-1 rounded-lg text-xs font-bold border border-slate-700 transition-colors ' +
+                    (paGame === val ? 'bg-slate-700 text-white' : 'text-slate-500') + '">' + label + '</button>';
+
+                document.getElementById('pa-game-chips').innerHTML =
+                    chip('All', 'all') +
+                    gamesInSet.map(g => chip('G' + g, g)).join('');
+                gameRow.classList.remove('hidden');
+            }
+
+            // Filter events
+            const events = paTaggedEvents.filter(h => {
+                if (!paPlayers[h.player]) return false;
+                if (!paStats[h.type])     return false;
+                if (setNum && h.set !== setNum) return false;
+                if (paGame !== 'all' && h.game !== paGame) return false;
+                return true;
+            });
+
+            const visPlayers = _paPlayerList.filter(p => paPlayers[p]);
+            const visStats   = ['ace','pointWon','fault','df'].filter(s => paStats[s]);
+
+            if (!visPlayers.length || !visStats.length) {
+                document.getElementById('pa-chart').innerHTML =
+                    '<p class="text-slate-600 italic text-sm text-center py-6">Select at least one player and one stat.</p>';
+                return;
+            }
+
+            // Count per player × stat
+            const counts = {};
+            visPlayers.forEach(p => { counts[p] = {}; visStats.forEach(s => { counts[p][s] = 0; }); });
+            events.forEach(h => {
+                if (counts[h.player] && counts[h.player][h.type] !== undefined) counts[h.player][h.type]++;
+            });
+
+            const maxVal = Math.max(1, ...visPlayers.flatMap(p => visStats.map(s => counts[p][s])));
+
+            // Render horizontal bar rows per player
+            const html = visPlayers.map(p =>
+                '<div class="mb-5">' +
+                '<p class="text-xs font-black text-white mb-2">' + p + '</p>' +
+                visStats.map(s => {
+                    const count = counts[p][s];
+                    const pct   = (count / maxVal * 100).toFixed(1);
+                    return '<div class="flex items-center gap-2 mb-1.5">' +
+                        '<span class="text-[9px] ' + PA_TEXT[s] + ' font-bold w-12 text-right flex-shrink-0">' + PA_LABELS[s] + '</span>' +
+                        '<div class="flex-1 bg-slate-800 rounded-full h-3 overflow-hidden">' +
+                        '<div class="h-full rounded-full ' + PA_BG[s] + '" style="width:' + pct + '%"></div>' +
+                        '</div>' +
+                        '<span class="text-[10px] text-white font-black w-5 text-right flex-shrink-0">' + count + '</span>' +
+                        '</div>';
+                }).join('') +
+                '</div>'
+            ).join('');
+
+            const scopeLabel = paScope === 'all'  ? 'entire match'
+                             : setNum === 3        ? 'set 3 tiebreak'
+                             : paGame !== 'all'    ? 'set ' + setNum + ' · game ' + paGame
+                             :                      'set ' + setNum;
+            const total = events.length;
+
+            document.getElementById('pa-chart').innerHTML = html +
+                '<p class="text-[9px] text-slate-600 text-center mt-1">' +
+                total + ' point' + (total !== 1 ? 's' : '') + ' · ' + scopeLabel + '</p>';
         }
 
         // ── Edit Match ────────────────────────────────────────────
