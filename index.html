@@ -550,86 +550,104 @@
                     </div>
 
                     <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Singles</p>
-                    <div class="flex flex-col gap-1.5 mb-4">
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 1</span>
-                                <span class="text-[8px] text-slate-600">Boys Singles 1</span>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 1</span><span class="text-[8px] text-slate-600">Boys Singles 1</span></div>
+                                <button id="qa-c0-w" onclick="selectCourt(0,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c0-l" onclick="selectCourt(0,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c0-w" onclick="selectCourt(0,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c0-l" onclick="selectCourt(0,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <input id="qa-cp-0-0" type="text" placeholder="Player name..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 2</span>
-                                <span class="text-[8px] text-slate-600">Girls Singles 1</span>
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 2</span><span class="text-[8px] text-slate-600">Girls Singles 1</span></div>
+                                <button id="qa-c1-w" onclick="selectCourt(1,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c1-l" onclick="selectCourt(1,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c1-w" onclick="selectCourt(1,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c1-l" onclick="selectCourt(1,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <input id="qa-cp-1-0" type="text" placeholder="Player name..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 3</span>
-                                <span class="text-[8px] text-slate-600">Boys Singles 2</span>
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 3</span><span class="text-[8px] text-slate-600">Boys Singles 2</span></div>
+                                <button id="qa-c2-w" onclick="selectCourt(2,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c2-l" onclick="selectCourt(2,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c2-w" onclick="selectCourt(2,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c2-l" onclick="selectCourt(2,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <input id="qa-cp-2-0" type="text" placeholder="Player name..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 4</span>
-                                <span class="text-[8px] text-slate-600">Girls Singles 2</span>
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 4</span><span class="text-[8px] text-slate-600">Girls Singles 2</span></div>
+                                <button id="qa-c3-w" onclick="selectCourt(3,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c3-l" onclick="selectCourt(3,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c3-w" onclick="selectCourt(3,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c3-l" onclick="selectCourt(3,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <input id="qa-cp-3-0" type="text" placeholder="Player name..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
                         </div>
                     </div>
 
                     <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest mb-2">Doubles</p>
-                    <div class="flex flex-col gap-1.5 mb-4">
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 5</span>
-                                <span class="text-[8px] text-slate-600">Boys Doubles 1</span>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 5</span><span class="text-[8px] text-slate-600">Boys Doubles 1</span></div>
+                                <button id="qa-c4-w" onclick="selectCourt(4,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c4-l" onclick="selectCourt(4,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c4-w" onclick="selectCourt(4,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c4-l" onclick="selectCourt(4,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <div class="flex gap-2">
+                                <input id="qa-cp-4-0" type="text" placeholder="Player 1..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                                <input id="qa-cp-4-1" type="text" placeholder="Player 2..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 6</span>
-                                <span class="text-[8px] text-slate-600">Girls Doubles 1</span>
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 6</span><span class="text-[8px] text-slate-600">Girls Doubles 1</span></div>
+                                <button id="qa-c5-w" onclick="selectCourt(5,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c5-l" onclick="selectCourt(5,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c5-w" onclick="selectCourt(5,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c5-l" onclick="selectCourt(5,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <div class="flex gap-2">
+                                <input id="qa-cp-5-0" type="text" placeholder="Player 1..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                                <input id="qa-cp-5-1" type="text" placeholder="Player 2..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 7</span>
-                                <span class="text-[8px] text-slate-600">Boys Doubles 2</span>
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 7</span><span class="text-[8px] text-slate-600">Boys Doubles 2</span></div>
+                                <button id="qa-c6-w" onclick="selectCourt(6,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c6-l" onclick="selectCourt(6,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c6-w" onclick="selectCourt(6,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c6-l" onclick="selectCourt(6,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <div class="flex gap-2">
+                                <input id="qa-cp-6-0" type="text" placeholder="Player 1..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                                <input id="qa-cp-6-1" type="text" placeholder="Player 2..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex-1 min-w-0">
-                                <span class="text-xs text-slate-400 font-bold block">Court 8</span>
-                                <span class="text-[8px] text-slate-600">Girls Doubles 2</span>
+                        <div class="bg-slate-800/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0"><span class="text-xs text-slate-400 font-bold block">Court 8</span><span class="text-[8px] text-slate-600">Girls Doubles 2</span></div>
+                                <button id="qa-c7-w" onclick="selectCourt(7,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c7-l" onclick="selectCourt(7,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c7-w" onclick="selectCourt(7,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c7-l" onclick="selectCourt(7,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <div class="flex gap-2">
+                                <input id="qa-cp-7-0" type="text" placeholder="Player 1..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                                <input id="qa-cp-7-1" type="text" placeholder="Player 2..." class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                            </div>
                         </div>
                     </div>
 
                     <p class="text-[8px] text-emerald-800 font-bold uppercase tracking-widest mb-2">Mixed</p>
-                    <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 bg-emerald-950/30 rounded-xl px-3 py-2">
-                            <div class="flex-1 min-w-0">
-                                <span id="qa-c9-label" class="text-xs text-emerald-300 font-bold block">Court 9</span>
-                                <span class="text-[8px] text-emerald-700">Mixed Doubles 1</span>
+                    <div class="flex flex-col gap-2">
+                        <div class="bg-emerald-950/30 border border-emerald-900/40 rounded-xl p-2.5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex-1 min-w-0">
+                                    <span id="qa-c9-label" class="text-xs text-emerald-300 font-bold block">Court 9</span>
+                                    <span class="text-[8px] text-emerald-700">Mixed Doubles 1</span>
+                                </div>
+                                <button id="qa-c8-w" onclick="selectCourt(8,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
+                                <button id="qa-c8-l" onclick="selectCourt(8,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
                             </div>
-                            <button id="qa-c8-w" onclick="selectCourt(8,'W')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">W</button>
-                            <button id="qa-c8-l" onclick="selectCourt(8,'L')" class="w-14 py-2 rounded-lg font-black text-xs bg-slate-800 text-slate-500">L</button>
+                            <div class="flex gap-2">
+                                <input id="qa-cp-8-0" type="text" placeholder="Player 1..." class="flex-1 min-w-0 bg-slate-800 border border-emerald-900/50 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                                <input id="qa-cp-8-1" type="text" placeholder="Player 2..." class="flex-1 min-w-0 bg-slate-800 border border-emerald-900/50 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder-slate-600 focus:outline-none focus:border-emerald-600">
+                            </div>
                         </div>
                     </div>
                     <p class="text-[9px] text-slate-600 mt-3">Tap W or L for each court played. Overall match result is calculated automatically.</p>
@@ -1435,7 +1453,7 @@
             renderSeasonMain(ghMatchCache || []);
         }
         function switchSeasonStatsTab(tab) {
-            ['overall', 'byopp'].forEach(t => {
+            ['overall', 'byopp', 'stats'].forEach(t => {
                 const panel = document.getElementById('sstab-' + t);
                 const btn   = document.getElementById('sstab-btn-' + t);
                 if (!panel || !btn) return;
@@ -1445,6 +1463,221 @@
                 btn.classList.toggle('text-white',   active);
                 btn.classList.toggle('text-slate-500', !active);
             });
+        }
+
+        function showStatsPlayer(pKey) {
+            ['P1', 'P2'].forEach(k => {
+                const el  = document.getElementById('stats-player-' + k);
+                const btn = document.getElementById('stats-ptoggle-' + k);
+                if (el)  el.classList.toggle('hidden', k !== pKey);
+                if (btn) {
+                    btn.classList.toggle('bg-slate-700',  k === pKey);
+                    btn.classList.toggle('text-white',    k === pKey);
+                    btn.classList.toggle('text-slate-500', k !== pKey);
+                }
+            });
+        }
+
+        function renderStatsCharts(matches) {
+            const chrono = [...matches].reverse();
+            const total  = matches.length;
+            const p1n    = playerNames.P1 || 'P1';
+            const p2n    = playerNames.P2 || 'P2';
+
+            function effResult(m) {
+                if (m.courts) {
+                    const cw = m.courts.filter(c => c.result === 'W').length;
+                    const cl = m.courts.filter(c => c.result === 'L').length;
+                    if (cw > cl) return 'W';
+                    if (cl > cw) return 'L';
+                }
+                return m.result;
+            }
+
+            // ── Section 1: Season Record ──────────────────────────────
+            const wins   = matches.filter(m => effResult(m) === 'W').length;
+            const losses = matches.filter(m => effResult(m) === 'L').length;
+            const pct    = total > 0 ? wins / total : 0;
+            const r = 38, cx = 60, cy = 60, sw = 11;
+            const C  = +(2 * Math.PI * r).toFixed(2);
+            const wA = +(pct * C).toFixed(2);
+            const lA = +(losses / total * C).toFixed(2);
+            const lRot = +(-90 + 360 * pct).toFixed(2);
+
+            const donut =
+                '<svg viewBox="0 0 120 120" width="120" height="120">' +
+                '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#1e293b" stroke-width="' + sw + '"/>' +
+                (wins   > 0 ? '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#10b981" stroke-width="' + sw + '" stroke-dasharray="' + wA + ' ' + C + '" transform="rotate(-90 ' + cx + ' ' + cy + ')"/>' : '') +
+                (losses > 0 ? '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#ef4444" stroke-width="' + sw + '" stroke-dasharray="' + lA + ' ' + C + '" transform="rotate(' + lRot + ' ' + cx + ' ' + cy + ')"/>' : '') +
+                '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" font-family="Arial Black,Arial" font-size="20" font-weight="900" fill="white">' + Math.round(pct * 100) + '%</text>' +
+                '<text x="' + cx + '" y="' + (cy + 10) + '" text-anchor="middle" font-family="Arial" font-size="9" fill="#64748b">WIN RATE</text>' +
+                '</svg>';
+
+            const strip = chrono.map(m => {
+                const res = effResult(m);
+                const bg  = res === 'W' ? '#10b981' : res === 'L' ? '#ef4444' : '#475569';
+                return '<div title="' + m.opponent + '" style="width:10px;height:22px;border-radius:3px;background:' + bg + ';flex-shrink:0;"></div>';
+            }).join('');
+
+            const sec1 =
+                '<div class="mb-6">' +
+                '<p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Season Record</p>' +
+                '<div class="flex items-center gap-5">' + donut +
+                '<div>' +
+                '<div class="text-3xl font-black text-white leading-none">' + wins + '<span class="text-slate-600 mx-2 text-xl">–</span>' + losses + '</div>' +
+                '<div class="text-[9px] text-slate-500 mt-1">' + total + ' match' + (total !== 1 ? 'es' : '') + '</div>' +
+                '<div class="flex gap-1 mt-3 flex-wrap" style="max-width:180px;">' + strip + '</div>' +
+                '<div class="text-[8px] text-slate-700 mt-1.5">Oldest → Newest</div>' +
+                '</div></div></div>';
+
+            // ── Section 2: Court Performance ──────────────────────────
+            const cMap = {};
+            COURT_CONFIGS.forEach(c => { cMap[c.id] = { w: 0, l: 0, players: {} }; });
+            matches.forEach(m => {
+                if (!m.courts) return;
+                m.courts.forEach(c => {
+                    const key = c.id || (COURT_CONFIGS.find(cfg => cfg.label === c.label)?.id);
+                    if (!key || !cMap[key]) return;
+                    if (c.result === 'W') cMap[key].w++;
+                    else if (c.result === 'L') cMap[key].l++;
+                    if (c.note && c.result) {
+                        c.note.split(' & ').forEach(p => {
+                            p = p.trim();
+                            if (!p) return;
+                            if (!cMap[key].players[p]) cMap[key].players[p] = { w: 0, l: 0 };
+                            if (c.result === 'W') cMap[key].players[p].w++;
+                            else if (c.result === 'L') cMap[key].players[p].l++;
+                        });
+                    }
+                });
+            });
+
+            const courtRows = COURT_CONFIGS.map(c => {
+                const s  = cMap[c.id];
+                const t  = s.w + s.l;
+                const wp = t > 0 ? (s.w / t * 100).toFixed(1) : 0;
+                const lp = t > 0 ? (s.l / t * 100).toFixed(1) : 0;
+                const playerEntries = Object.entries(s.players);
+                const playerLine = playerEntries.map(([name, ps]) => {
+                    const col = ps.w > ps.l ? '#10b981' : ps.l > ps.w ? '#ef4444' : '#94a3b8';
+                    return '<span style="color:' + col + ';font-weight:700;">' + name + '</span>' +
+                           '<span style="color:#475569;"> ' + ps.w + '–' + ps.l + '</span>';
+                }).join('<span style="color:#334155;"> · </span>');
+                return '<div class="mb-3">' +
+                    '<div class="flex items-center gap-2">' +
+                    '<div style="width:54px;flex-shrink:0;">' +
+                    '<span class="text-[10px] text-slate-400 font-bold block leading-tight">' + c.label + '</span>' +
+                    '<span class="text-[8px] text-slate-600 leading-tight">' + c.desc + '</span>' +
+                    '</div>' +
+                    '<div class="flex-1 rounded-full overflow-hidden" style="height:12px;background:#1e293b;">' +
+                    (t > 0
+                        ? '<div class="h-full flex">' +
+                          (s.w > 0 ? '<div style="width:' + wp + '%;background:#10b981;height:100%;"></div>' : '') +
+                          (s.l > 0 ? '<div style="width:' + lp + '%;background:#ef4444;height:100%;"></div>' : '') +
+                          '</div>'
+                        : '') +
+                    '</div>' +
+                    '<div style="width:32px;flex-shrink:0;text-align:right;" class="text-[9px] ' + (t > 0 ? 'text-slate-400' : 'text-slate-700') + '">' +
+                    (t > 0 ? s.w + '–' + s.l : '–') +
+                    '</div></div>' +
+                    (playerEntries.length ? '<div class="text-[8px] mt-1 ml-1" style="padding-left:58px;">' + playerLine + '</div>' : '') +
+                    '</div>';
+            }).join('');
+
+            // Player records across all courts
+            const playerTotals = {};
+            Object.values(cMap).forEach(cs => {
+                Object.entries(cs.players).forEach(([name, ps]) => {
+                    if (!playerTotals[name]) playerTotals[name] = { w: 0, l: 0 };
+                    playerTotals[name].w += ps.w;
+                    playerTotals[name].l += ps.l;
+                });
+            });
+            const playerRecordsHtml = Object.entries(playerTotals)
+                .sort((a, b) => (b[1].w + b[1].l) - (a[1].w + a[1].l))
+                .map(([name, ps]) => {
+                    const rc = ps.w > ps.l ? '#10b981' : ps.l > ps.w ? '#ef4444' : '#64748b';
+                    return '<div class="flex items-center justify-between bg-slate-800/60 rounded-xl px-3 py-2 mb-1.5">' +
+                        '<span class="text-xs font-bold text-white">' + name + '</span>' +
+                        '<span class="text-sm font-black" style="color:' + rc + '">' + ps.w + '–' + ps.l + '</span>' +
+                        '</div>';
+                }).join('');
+
+            const sec2 =
+                '<div class="mb-6">' +
+                '<p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Court Performance</p>' +
+                courtRows +
+                (playerRecordsHtml
+                    ? '<p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4 mb-2">Player Records</p>' + playerRecordsHtml
+                    : '') +
+                '</div>';
+
+            // ── Section 3: Player Performance ─────────────────────────
+            const statDefs = [
+                { key: 'ace',      label: 'Aces',         color: '#10b981' },
+                { key: 'pointWon', label: 'Points Won',    color: '#3b82f6' },
+                { key: 'fault',    label: 'Errors',        color: '#ef4444' },
+                { key: 'df',       label: 'Double Faults', color: '#f97316' },
+            ];
+
+            function buildSparklines(pKey, pName) {
+                // playerStats are keyed by display name in the CSV, not by 'P1'/'P2'
+                const pm = chrono.filter(m => m.playerStats && m.playerStats[pName]);
+                if (pm.length === 0) {
+                    return '<p class="text-slate-600 italic text-xs py-3">No stat data for ' + pName + '.</p>';
+                }
+                const W = 300, H = 96, pad = 5, topPad = 18, xLabelH = 28;
+                return statDefs.map(sd => {
+                    const vals   = pm.map(m => m.playerStats[pName][sd.key] || 0);
+                    const maxV   = Math.max(...vals, 1);
+                    const n      = vals.length;
+                    const chartH = H - topPad - pad - xLabelH;
+                    const coords = vals.map((v, i) => ({
+                        x:   n > 1 ? pad + (i / (n - 1)) * (W - pad * 2) : W / 2,
+                        y:   topPad + (1 - v / maxV) * chartH,
+                        v,
+                        opp: (pm[i].opponent || '').split(' ')[0].slice(0, 9)
+                    }));
+                    const pts  = coords.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+                    const dots = coords.map(p =>
+                        '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3" fill="' + sd.color + '" opacity="0.9"/>' +
+                        '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 6).toFixed(1) + '" text-anchor="middle" font-family="Arial" font-size="9" font-weight="bold" fill="' + sd.color + '" opacity="0.9">' + p.v + '</text>' +
+                        '<text x="' + p.x.toFixed(1) + '" y="' + (H - xLabelH + 2) + '" transform="rotate(-40 ' + p.x.toFixed(1) + ' ' + (H - xLabelH + 2) + ')" text-anchor="end" font-family="Arial" font-size="8" fill="#64748b">' + p.opp + '</text>'
+                    ).join('');
+                    const last = vals[vals.length - 1];
+                    return '<div class="mb-3">' +
+                        '<div class="flex items-center justify-between mb-1">' +
+                        '<span class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">' + sd.label + '</span>' +
+                        '<span class="text-[9px] font-black" style="color:' + sd.color + '">' + last + '</span>' +
+                        '</div>' +
+                        '<div class="rounded-lg overflow-hidden" style="background:#1e293b;">' +
+                        '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="auto">' +
+                        (n > 1 ? '<polyline points="' + pts + '" fill="none" stroke="' + sd.color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.7"/>' : '') +
+                        dots +
+                        '</svg></div></div>';
+                }).join('');
+            }
+
+            const sec3 =
+                '<div class="mb-6">' +
+                '<div class="flex items-center justify-between mb-3">' +
+                '<p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Player Performance</p>' +
+                '<div class="flex gap-1">' +
+                '<button id="stats-ptoggle-P1" onclick="showStatsPlayer(\'P1\')" class="text-[9px] font-bold px-2 py-1 rounded-lg bg-slate-700 text-white">' + p1n + '</button>' +
+                '<button id="stats-ptoggle-P2" onclick="showStatsPlayer(\'P2\')" class="text-[9px] font-bold px-2 py-1 rounded-lg text-slate-500">' + p2n + '</button>' +
+                '</div></div>' +
+                '<div class="flex flex-wrap gap-x-4 gap-y-1.5 mb-3 px-0.5">' +
+                '<span class="flex items-center gap-1.5"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;flex-shrink:0;"></span><span class="text-[8px] text-slate-500">Aces</span></span>' +
+                '<span class="flex items-center gap-1.5"><span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block;flex-shrink:0;"></span><span class="text-[8px] text-slate-500">Points Won</span></span>' +
+                '<span class="flex items-center gap-1.5"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0;"></span><span class="text-[8px] text-slate-500">Errors</span></span>' +
+                '<span class="flex items-center gap-1.5"><span style="width:8px;height:8px;border-radius:50%;background:#f97316;display:inline-block;flex-shrink:0;"></span><span class="text-[8px] text-slate-500">Double Faults</span></span>' +
+                '</div>' +
+                '<p class="text-[8px] text-slate-600 mb-3">Each dot is one match · Left = oldest, Right = newest · Height = relative count per chart</p>' +
+                '<div id="stats-player-P1">' + buildSparklines('P1', p1n) + '</div>' +
+                '<div id="stats-player-P2" class="hidden">' + buildSparklines('P2', p2n) + '</div>' +
+                '</div>';
+
+            return sec1 + sec2 + sec3;
         }
 
         function renderSeasonMain(ghMatches = []) {
@@ -1490,6 +1723,9 @@
 
             // Helper: render a player-stats table from a { playerName: stats } object
             function buildStatsTable(obj) {
+                if (Object.keys(obj).length === 0) {
+                    return '<p class="text-slate-600 italic text-xs text-center py-3">No stat data recorded yet.</p>';
+                }
                 const rows = Object.keys(obj).map(p => {
                     const t = obj[p];
                     return '<tr class="border-t border-slate-800">' +
@@ -1541,7 +1777,7 @@
                         '<div class="text-slate-600">›</div></div>';
                 }).join('');
 
-            const hasStats = Object.keys(totals).length > 0;
+            const hasStats = matches.length > 0;
 
             // By-opponent HTML — court shown as sub-header within each opponent section
             const byOppHtml = Object.keys(byOpp).map(opp => {
@@ -1564,9 +1800,11 @@
                 '<div class="flex gap-1">' +
                 '<button id="sstab-btn-overall" onclick="switchSeasonStatsTab(\'overall\')" class="text-[9px] font-bold px-2 py-1 rounded-lg bg-slate-700 text-white">Overall</button>' +
                 '<button id="sstab-btn-byopp"   onclick="switchSeasonStatsTab(\'byopp\')"   class="text-[9px] font-bold px-2 py-1 rounded-lg text-slate-500">By Opp.</button>' +
+                '<button id="sstab-btn-stats"   onclick="switchSeasonStatsTab(\'stats\')"   class="text-[9px] font-bold px-2 py-1 rounded-lg text-slate-500">Charts</button>' +
                 '</div></div>' +
                 '<div id="sstab-overall">' + buildStatsTable(totals) + '</div>' +
-                '<div id="sstab-byopp"   class="hidden">' + byOppHtml   + '</div>' +
+                '<div id="sstab-byopp"   class="hidden">' + byOppHtml              + '</div>' +
+                '<div id="sstab-stats"   class="hidden">' + renderStatsCharts(matches) + '</div>' +
                 '</div>';
 
             document.getElementById('season-content').innerHTML =
@@ -1937,10 +2175,28 @@
             if (!m) return;
             qaEditMatchId = matchId;
             qaCourtSelections = [null, null, null, null, null, null, null, null, null];
+            // Reset all player name inputs
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 2; j++) {
+                    const el = document.getElementById('qa-cp-' + i + '-' + j);
+                    if (el) el.value = '';
+                }
+            }
             // Pre-fill from override (GitHub) or stored courts (local)
             const existingCourts = m._gh ? (loadCourtOverrides()[matchId] || m.courts) : m.courts;
             if (existingCourts) {
-                existingCourts.forEach((c, i) => { qaCourtSelections[i] = c.result; });
+                existingCourts.forEach(c => {
+                    // Look up by id or label so order in the array doesn't matter
+                    const idx = QA_COURT_DEFS.findIndex(d => d.id === c.id || d.label === c.label);
+                    if (idx === -1) return;
+                    qaCourtSelections[idx] = c.result;
+                    if (c.note) {
+                        c.note.split(' & ').forEach((name, j) => {
+                            const el = document.getElementById('qa-cp-' + idx + '-' + j);
+                            if (el) el.value = name;
+                        });
+                    }
+                });
             }
             document.getElementById('qa-modal-title').innerText  = m.opponent + ' — Courts';
             document.getElementById('qa-header-fields').classList.add('hidden');
@@ -1956,14 +2212,21 @@
         }
 
         async function submitQuickAdd() {
-            const courts = QA_COURT_DEFS.map((def, i) => ({
-                id:     def.id,
-                label:  def.label,
-                desc:   def.desc,
-                type:   def.type,
-                note:   def.note || null,
-                result: qaCourtSelections[i]
-            }));
+            const courts = QA_COURT_DEFS.map((def, i) => {
+                const names = [];
+                for (let j = 0; j < 2; j++) {
+                    const el = document.getElementById('qa-cp-' + i + '-' + j);
+                    if (el && el.value.trim()) names.push(el.value.trim());
+                }
+                return {
+                    id:     def.id,
+                    label:  def.label,
+                    desc:   def.desc,
+                    type:   def.type,
+                    note:   names.length ? names.join(' & ') : null,
+                    result: qaCourtSelections[i]
+                };
+            });
 
             const played = courts.filter(c => c.result !== null);
             const won    = played.filter(c => c.result === 'W').length;
@@ -2155,8 +2418,11 @@
 
                 if (section === 'courts') {
                     if (cells[0] === 'Court' || !cells[0]) continue;
+                    const courtLabel = cells[0];
+                    const matchedCfg = COURT_CONFIGS.find(cfg => cfg.label === courtLabel);
                     courts.push({
-                        label:  cells[0],
+                        id:     matchedCfg ? matchedCfg.id : undefined,
+                        label:  courtLabel,
                         desc:   cells[1] || '',
                         type:   cells[2] || 'singles',
                         note:   cells[3] || null,
