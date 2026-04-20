@@ -2030,9 +2030,14 @@
 
             paTaggedEvents = paTagTimeline(m.timeline);
 
-            // Collect players in order of first appearance
+            // Collect players in order of first appearance, then sort: our players before opponents
             _paPlayerList = [];
             paTaggedEvents.forEach(h => { if (!_paPlayerList.includes(h.player)) _paPlayerList.push(h.player); });
+            _paPlayerList.sort((a, b) => {
+                const aOpp = a.toLowerCase().startsWith('opp') ? 1 : 0;
+                const bOpp = b.toLowerCase().startsWith('opp') ? 1 : 0;
+                return aOpp - bOpp; // our players (0) sort before opponents (1)
+            });
             paPlayers = {};
             _paPlayerList.forEach(p => { paPlayers[p] = true; });
 
