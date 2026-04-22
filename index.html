@@ -1889,8 +1889,17 @@
             document.getElementById('season-title').innerText = 'Season';
             document.getElementById('season-back-btn').classList.add('hidden');
 
-            const wins   = matches.filter(m => m.result === 'W').length;
-            const losses = matches.filter(m => m.result === 'L').length;
+            function courtResult(m) {
+                if (m.courts) {
+                    const cw = m.courts.filter(c => c.result === 'W').length;
+                    const cl = m.courts.filter(c => c.result === 'L').length;
+                    if (cw > cl) return 'W';
+                    if (cl > cw) return 'L';
+                }
+                return m.result;
+            }
+            const wins   = matches.filter(m => courtResult(m) === 'W').length;
+            const losses = matches.filter(m => courtResult(m) === 'L').length;
 
             // Aggregate season totals — collect all player names dynamically
             const totals = {};
