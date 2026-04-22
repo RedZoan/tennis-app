@@ -71,6 +71,7 @@
         body.outdoor #game-score-them { font-size: 4rem !important; }
         body.outdoor .bottom-bar { background: rgba(0,0,0,0.98) !important; border-color: #333 !important; }
         #outdoor-btn.active { color: #fbbf24; border-color: #fbbf24; }
+        .bottom-bar { padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem)); }
 
         /* ── Landscape phone layout ────────────────────────────── */
         @media (orientation: landscape) and (max-height: 600px) {
@@ -262,7 +263,7 @@
                 Hold to Undo
             </button>
         </div>
-        <div id="history-feed" class="flex gap-2 overflow-x-auto history-scroll py-2 px-1 text-[10px]">
+        <div id="history-feed" class="flex gap-2 overflow-x-auto history-scroll py-2 px-1 text-xs">
             <span class="text-slate-600 italic">Tracking in progress...</span>
         </div>
     </div>
@@ -416,6 +417,25 @@
             <div class="flex flex-col gap-2">
                 <button onclick="resetMatch()" class="w-full py-4 bg-red-600 text-white rounded-xl font-black text-sm uppercase">Yes, Clear All</button>
                 <button onclick="closeModal()" class="w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm uppercase">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Entry Modal -->
+    <div id="modal-edit-entry" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-t-3xl sm:rounded-3xl max-w-sm w-full p-5">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="text-base font-black text-white uppercase tracking-tight">Edit Entry</h3>
+                <span id="edit-entry-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-wide"></span>
+            </div>
+            <p class="text-[9px] text-slate-500 mb-4 uppercase tracking-widest">Select a new action, then confirm</p>
+            <div id="edit-entry-players" class="space-y-3"></div>
+            <div class="mt-4 flex flex-col gap-2">
+                <button id="edit-entry-confirm" onclick="confirmEditEntry()" disabled
+                    class="w-full py-3.5 bg-slate-700 text-slate-500 rounded-xl font-black text-sm uppercase cursor-not-allowed transition-colors">
+                    Apply Correction
+                </button>
+                <button onclick="closeEditEntryModal()" class="w-full py-3 bg-slate-800 text-slate-400 rounded-xl font-bold text-sm uppercase">Cancel</button>
             </div>
         </div>
     </div>
@@ -964,6 +984,156 @@
             updateUI();
         }
 
+        // ── Edit arbitrary history entry ───────────────────────
+        let editingEntryIdx = null;
+        let pendingEdit     = null; // { player, type } once user selects a candidate
+
+        function getSide(player, type) {
+            const isOurs  = player === 'P1' || player === 'P2';
+            const isPoint = type   === 'ace' || type === 'pointWon';
+            return (isOurs === isPoint) ? 'us' : 'them';
+        }
+
+        const EDIT_ACTIONS = [
+            { type:'ace',      label:'Ace',     cls:'ace-btn'   },
+            { type:'pointWon', label:'Winner',  cls:'point-btn' },
+            { type:'fault',    label:'Error',   cls:'fault-btn' },
+            { type:'df',       label:'D-Fault', cls:'df-btn'    },
+        ];
+
+        function renderEditButtons() {
+            const entry     = history[editingEntryIdx];
+            const cfg       = getCourtConfig();
+            const players   = cfg.ourCount === 2 ? ['P1','P2','OppA','OppB'] : ['P1','OppA'];
+            const hasPending = pendingEdit !== null;
+            const pendingIsNew = hasPending &&
+                (pendingEdit.player !== entry.player || pendingEdit.type !== entry.type);
+
+            document.getElementById('edit-entry-players').innerHTML = players.map(player => {
+                const teamLabel = (player === 'P1' || player === 'P2') ? 'Our Team' : 'Opponents';
+                return `<div>
+                    <div class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                        ${getDisplayName(player)} <span class="font-normal normal-case text-slate-600">${teamLabel}</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        ${EDIT_ACTIONS.map(a => {
+                            const isOriginal = player === entry.player && a.type === entry.type;
+                            const isPending  = hasPending && player === pendingEdit.player && a.type === pendingEdit.type;
+                            let ring;
+                            if (!pendingIsNew) {
+                                ring = isOriginal ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900' : 'opacity-50';
+                            } else {
+                                if (isPending)      ring = 'ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-900';
+                                else if (isOriginal) ring = 'opacity-40 ring-1 ring-slate-600';
+                                else                ring = 'opacity-40';
+                            }
+                            return `<button onclick="selectPendingEdit('${player}','${a.type}')"
+                                class="btn-active ${a.cls} py-3 rounded-xl font-black text-[9px] uppercase transition-all ${ring}">
+                                ${a.label}
+                            </button>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }).join('');
+
+            const confirmBtn = document.getElementById('edit-entry-confirm');
+            if (pendingIsNew) {
+                confirmBtn.disabled   = false;
+                confirmBtn.className  = 'w-full py-3.5 bg-emerald-600 text-white rounded-xl font-black text-sm uppercase transition-colors';
+            } else {
+                confirmBtn.disabled   = true;
+                confirmBtn.className  = 'w-full py-3.5 bg-slate-700 text-slate-500 rounded-xl font-black text-sm uppercase cursor-not-allowed transition-colors';
+            }
+        }
+
+        function showEditEntryModal(idx) {
+            editingEntryIdx = idx;
+            pendingEdit     = null;
+            const entry     = history[idx];
+            const labelMap  = { ace: 'ACE', pointWon: 'WINNER', fault: 'ERROR', df: 'D-FAULT' };
+            document.getElementById('edit-entry-label').textContent =
+                `${getDisplayName(entry.player)}: ${labelMap[entry.type]}`;
+            renderEditButtons();
+            document.getElementById('modal-edit-entry').classList.remove('hidden');
+        }
+
+        function selectPendingEdit(player, type) {
+            pendingEdit = { player, type };
+            renderEditButtons();
+        }
+
+        function confirmEditEntry() {
+            if (!pendingEdit || editingEntryIdx === null) return;
+            const { player, type } = pendingEdit;
+            const idx = editingEntryIdx;
+            closeEditEntryModal();
+            editHistoryEntry(idx, player, type);
+        }
+
+        function closeEditEntryModal() {
+            document.getElementById('modal-edit-entry').classList.add('hidden');
+            editingEntryIdx = null;
+            pendingEdit     = null;
+        }
+
+        function editHistoryEntry(idx, newPlayer, newType) {
+            const entry   = history[idx];
+            const newSide = getSide(newPlayer, newType);
+            if (newPlayer === entry.player && newType === entry.type) return;
+
+            if (newSide === entry.side) {
+                playerStats[entry.player][entry.type] = Math.max(0, playerStats[entry.player][entry.type] - 1);
+                playerStats[newPlayer][newType]++;
+                history[idx].player = newPlayer;
+                history[idx].type   = newType;
+            } else {
+                const ordered    = [...history].reverse();
+                const replayIdx  = history.length - 1 - idx;
+                ordered[replayIdx] = { ...ordered[replayIdx], player: newPlayer, type: newType, side: newSide };
+                replayHistory(ordered);
+            }
+
+            window.navigator.vibrate && window.navigator.vibrate([20, 10, 20]);
+            updateUI();
+        }
+
+        function replayHistory(entries) {
+            resetScoringOnly();
+            playerStats = {
+                P1:   { ace:0, fault:0, df:0, pointWon:0 },
+                P2:   { ace:0, fault:0, df:0, pointWon:0 },
+                OppA: { ace:0, fault:0, df:0, pointWon:0 },
+                OppB: { ace:0, fault:0, df:0, pointWon:0 }
+            };
+            history = [];
+
+            for (const entry of entries) {
+                if (matchOver) break;
+                const isMatchTiebreak = (currentSetIndex === 2);
+                const isSetTiebreak   = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
+                const isTB = isMatchTiebreak || isSetTiebreak;
+
+                playerStats[entry.player][entry.type]++;
+                const result = incrementScore(entry.side);
+
+                let finalRowGameScore, finalRowSetScore;
+                if (result.gameEnded) {
+                    finalRowGameScore = result.finalTally;
+                    finalRowSetScore  = `Set ${result.prevSetIndex + 1}: ${result.finalSetTally}`;
+                } else {
+                    finalRowGameScore = getGameScoreString(gamePoints, isTB);
+                    finalRowSetScore  = `Set ${currentSetIndex + 1}: ${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
+                }
+
+                history.unshift({
+                    player: entry.player, type: entry.type, side: entry.side,
+                    timestamp: entry.timestamp,
+                    csvGameScore: finalRowGameScore, csvSetScore: finalRowSetScore,
+                    state: JSON.parse(JSON.stringify({ gamePoints, setScore, setsWon, currentSetIndex, matchOver }))
+                });
+            }
+        }
+
         function resetScoringOnly() {
             gamePoints      = { us: 0, them: 0 };
             setScore        = [{ us:0, them:0 }, { us:0, them:0 }, { us:0, them:0 }];
@@ -1017,10 +1187,10 @@
             } else {
                 const labelMap = { ace: 'ACE', pointWon: 'WINNER', fault: 'ERROR', df: 'D-FAULT' };
                 const colorMap = { ace: 'text-emerald-400', pointWon: 'text-blue-400', fault: 'text-red-400', df: 'text-orange-400' };
-                feed.innerHTML = history.slice(0, 8).map(h =>
-                    `<div class="flex-shrink-0 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full whitespace-nowrap shadow-sm">` +
+                feed.innerHTML = history.slice(0, 8).map((h, i) =>
+                    `<div onclick="showEditEntryModal(${i})" class="flex-shrink-0 bg-slate-800 border border-slate-700 px-4 py-2.5 rounded-full whitespace-nowrap shadow-sm cursor-pointer active:bg-slate-700 select-none">` +
                     `<span class="font-bold text-white">${getDisplayName(h.player)}:</span> ` +
-                    `<span class="${colorMap[h.type]} font-black uppercase text-[8px]">${labelMap[h.type] || h.type.toUpperCase()}</span></div>`
+                    `<span class="${colorMap[h.type]} font-black uppercase text-[10px]">${labelMap[h.type] || h.type.toUpperCase()}</span></div>`
                 ).join('');
             }
         }
