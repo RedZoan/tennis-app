@@ -26,10 +26,10 @@ OppGirl,3,10,0,13
 
 Timeline
 Timestamp,Player,Action,Game Score,Set Score
-05:15:53 PM,Maddie,Error,="0-15",="Set 1: 0-0"
-05:15:53 PM,Maddie,Error,="0-30",="Set 1: 0-0"
-05:15:53 PM,Maddie,Error,="0-40",="Set 1: 0-0"
-05:15:53 PM,Maddie,Error,="Game Won",="Set 1: 0-1"
+05:15:53 PM,,,="",="Set 1: 0-0"
+05:15:53 PM,,,="",="Set 1: 0-0"
+05:15:53 PM,,,="",="Set 1: 0-0"
+05:15:53 PM,,,="Game Won",="Set 1: 0-1"
 05:15:56 PM,Brandon,Error,="0-15",="Set 1: 0-1"
 05:16:35 PM,OppBoy,Error,="15-15",="Set 1: 0-1"
 05:17:18 PM,Maddie,Winner,="30-15",="Set 1: 0-1"
