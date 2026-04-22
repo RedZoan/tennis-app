@@ -1359,7 +1359,28 @@
                     updateAdminBtn();
                     return { ok: false, error: 'Token rejected — admin mode disabled' };
                 }
-                if (res.status === 422) return { ok: false, error: 'File already exists on GitHub' };
+                if (res.status === 422) {
+                    // File already exists — fetch its SHA and overwrite
+                    const getRes = await fetch(
+                        `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}/${filename}`,
+                        { headers: { 'Authorization': `token ${token}` } }
+                    );
+                    if (!getRes.ok) return { ok: false, error: `Could not fetch existing file SHA (${getRes.status})` };
+                    const existing = await getRes.json();
+                    const overwriteRes = await fetch(
+                        `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}/${filename}`,
+                        {
+                            method: 'PUT',
+                            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                message: `Update match: ${matchRecord.opponent} (${matchRecord.date})`,
+                                content: encoded,
+                                sha: existing.sha
+                            })
+                        }
+                    );
+                    return { ok: overwriteRes.ok, error: overwriteRes.ok ? null : `GitHub error ${overwriteRes.status}` };
+                }
                 return { ok: res.ok, error: res.ok ? null : `GitHub error ${res.status}` };
             } catch (e) {
                 return { ok: false, error: e.message };
