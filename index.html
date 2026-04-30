@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -127,6 +127,22 @@
                         <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">P2:</span>
                         <input id="p2-input" type="text" placeholder="Player name" value="Maddie" oninput="onPlayerNameChange()"
                                class="bg-transparent border-b border-slate-700 text-sm font-bold text-white focus:outline-none focus:border-emerald-500 w-24">
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mt-1.5">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">Format:</span>
+                    <select id="scoring-method-select" onchange="onScoringMethodChange()"
+                            class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors">
+                        <option value="standard">Standard (Best of 3)</option>
+                        <option value="pro-set">Pro Set</option>
+                    </select>
+                    <div id="pro-set-tb-row" style="display:none" class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase flex-shrink-0">TB:</span>
+                        <select id="pro-set-tb-select" onchange="onProSetTbChange()"
+                                class="bg-transparent border-b border-slate-700 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 transition-colors">
+                            <option value="7">7pt</option>
+                            <option value="10">10pt</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -810,6 +826,9 @@
         }
 
         // ── State ─────────────────────────────────────────────────
+        let scoringMethod = 'standard'; // 'standard' | 'pro-set'
+        let proSetTiebreakPoints = 7;   // 7 or 10
+
         let gamePoints = { us: 0, them: 0 };
         let setScore = [
             { us: 0, them: 0 },
@@ -834,6 +853,18 @@
         function toggleOutdoor() {
             document.body.classList.toggle('outdoor');
             document.getElementById('outdoor-btn').classList.toggle('active');
+        }
+
+        function onScoringMethodChange() {
+            scoringMethod = document.getElementById('scoring-method-select').value;
+            document.getElementById('pro-set-tb-row').style.display = scoringMethod === 'pro-set' ? 'flex' : 'none';
+            history = [];
+            resetScoringOnly();
+            updateUI();
+        }
+
+        function onProSetTbChange() {
+            proSetTiebreakPoints = parseInt(document.getElementById('pro-set-tb-select').value, 10);
         }
 
         // ── 5. Hold-to-confirm Undo ───────────────────────────────
@@ -876,9 +907,9 @@
         function handlePoint(player, actionType, sideWinner) {
             if (matchOver) return;
 
-            const isMatchTiebreak = (currentSetIndex === 2);
-            const isSetTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
-            const isTB = isMatchTiebreak || isSetTiebreak;
+            const isTB = scoringMethod === 'pro-set'
+                ? (setScore[0].us === 8 && setScore[0].them === 8)
+                : ((setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2) || currentSetIndex === 2);
 
             playerStats[player][actionType]++;
             const result = incrementScore(sideWinner);
@@ -905,26 +936,35 @@
 
         function incrementScore(side) {
             const otherSide = side === 'us' ? 'them' : 'us';
-            const isSetTiebreak   = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
-            const isMatchTiebreak = (currentSetIndex === 2);
-            const isTB = isMatchTiebreak || isSetTiebreak;
+            let isTB, tbTarget;
+
+            if (scoringMethod === 'pro-set') {
+                isTB     = setScore[0].us === 8 && setScore[0].them === 8;
+                tbTarget = proSetTiebreakPoints;
+            } else {
+                const isSetTiebreak   = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
+                const isMatchTiebreak = (currentSetIndex === 2);
+                isTB     = isSetTiebreak || isMatchTiebreak;
+                tbTarget = isMatchTiebreak ? 10 : 7;
+            }
+
             let result = { gameEnded: false };
 
             if (isTB) {
                 gamePoints[side]++;
-                const target = isMatchTiebreak ? 10 : 7;
-                if (isMatchTiebreak) {
-                    setScore[currentSetIndex][side]    = gamePoints[side];
-                    setScore[currentSetIndex][otherSide] = gamePoints[otherSide];
+                // Standard match tiebreak: mirror live points into setScore for display
+                if (scoringMethod === 'standard' && currentSetIndex === 2) {
+                    setScore[2][side]    = gamePoints[side];
+                    setScore[2][otherSide] = gamePoints[otherSide];
                 }
-                if (gamePoints[side] >= target && (gamePoints[side] - gamePoints[otherSide] >= 2)) {
+                if (gamePoints[side] >= tbTarget && (gamePoints[side] - gamePoints[otherSide] >= 2)) {
                     result = winGame(side, true);
                 }
             } else {
                 if (gamePoints[side] === 3) {
-                    if (gamePoints[otherSide] < 3)      result = winGame(side, false);
-                    else if (gamePoints[otherSide] === 3) gamePoints[side] = 4;
-                    else if (gamePoints[otherSide] === 4) gamePoints[otherSide] = 3;
+                    if (gamePoints[otherSide] < 3)        result = winGame(side, false);
+                    else if (gamePoints[otherSide] === 3)  gamePoints[side] = 4;
+                    else if (gamePoints[otherSide] === 4)  gamePoints[otherSide] = 3;
                 } else if (gamePoints[side] === 4) {
                     result = winGame(side, false);
                 } else {
@@ -936,11 +976,11 @@
 
         function winGame(side, isTB) {
             const otherSide = side === 'us' ? 'them' : 'us';
-            const isMatchTiebreak = (currentSetIndex === 2);
+            const isStdMatchTiebreak = (scoringMethod === 'standard' && currentSetIndex === 2);
             const finalTally = isTB ? `${gamePoints.us}-${gamePoints.them}` : "Game Won";
             const prevSetIndex = currentSetIndex;
 
-            if (!isMatchTiebreak) setScore[currentSetIndex][side]++;
+            if (!isStdMatchTiebreak) setScore[currentSetIndex][side]++;
             else setScore[currentSetIndex][side] = gamePoints[side];
 
             const finalSetTally = `${setScore[currentSetIndex].us}-${setScore[currentSetIndex].them}`;
@@ -949,10 +989,11 @@
             const gamesWon  = setScore[currentSetIndex][side];
             const gamesLost = setScore[currentSetIndex][otherSide];
 
-            if (isMatchTiebreak) {
-                winSet(side);
-            } else if ((gamesWon >= 6 && (gamesWon - gamesLost >= 2)) || gamesWon === 7) {
-                winSet(side);
+            if (scoringMethod === 'pro-set') {
+                if (isTB || (gamesWon >= 8 && gamesWon - gamesLost >= 2)) winSet(side);
+            } else {
+                if (isStdMatchTiebreak) winSet(side);
+                else if ((gamesWon >= 6 && (gamesWon - gamesLost >= 2)) || gamesWon === 7) winSet(side);
             }
 
             return { gameEnded: true, finalTally, finalSetTally, prevSetIndex };
@@ -960,11 +1001,15 @@
 
         function winSet(side) {
             setsWon[side]++;
-            if (setsWon[side] === 2) matchOver = true;
-            else if (setsWon.us + setsWon.them < 3) {
-                currentSetIndex++;
-                if (currentSetIndex > 2) matchOver = true;
-            } else matchOver = true;
+            if (scoringMethod === 'pro-set') {
+                matchOver = true;
+            } else {
+                if (setsWon[side] === 2) matchOver = true;
+                else if (setsWon.us + setsWon.them < 3) {
+                    currentSetIndex++;
+                    if (currentSetIndex > 2) matchOver = true;
+                } else matchOver = true;
+            }
         }
 
         function undo() {
@@ -1109,9 +1154,9 @@
 
             for (const entry of entries) {
                 if (matchOver) break;
-                const isMatchTiebreak = (currentSetIndex === 2);
-                const isSetTiebreak   = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2);
-                const isTB = isMatchTiebreak || isSetTiebreak;
+                const isTB = scoringMethod === 'pro-set'
+                    ? (setScore[0].us === 8 && setScore[0].them === 8)
+                    : ((setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6 && currentSetIndex < 2) || currentSetIndex === 2);
 
                 playerStats[entry.player][entry.type]++;
                 const result = incrementScore(entry.side);
@@ -1162,20 +1207,35 @@
             document.getElementById('oppb-card').style.display  = isDoubles ? '' : 'none';
             document.getElementById('p2-input-row').style.display = isDoubles ? '' : 'none';
 
-            const isTiebreak = (setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6) || currentSetIndex === 2;
+            const isTiebreak = scoringMethod === 'pro-set'
+                ? (setScore[0].us === 8 && setScore[0].them === 8)
+                : ((setScore[currentSetIndex].us === 6 && setScore[currentSetIndex].them === 6) || currentSetIndex === 2);
             document.getElementById('game-score-us').innerText   = isTiebreak ? gamePoints.us   : (SCORE_LABELS[gamePoints.us]   || "0");
             document.getElementById('game-score-them').innerText = isTiebreak ? gamePoints.them : (SCORE_LABELS[gamePoints.them] || "0");
 
-            document.getElementById('sets-us').innerText    = `SETS: ${setsWon.us}`;
-            document.getElementById('sets-them').innerText  = `SETS: ${setsWon.them}`;
-            document.getElementById('set1-score').innerText = `${setScore[0].us}-${setScore[0].them}`;
-            document.getElementById('set2-score').innerText = `${setScore[1].us}-${setScore[1].them}`;
-            document.getElementById('set3-score').innerText = `${setScore[2].us}-${setScore[2].them}`;
+            if (scoringMethod === 'pro-set') {
+                document.getElementById('sets-us').innerText    = `GAMES: ${setScore[0].us}`;
+                document.getElementById('sets-them').innerText  = `GAMES: ${setScore[0].them}`;
+                document.getElementById('set1-score').innerText = `${setScore[0].us}-${setScore[0].them}`;
+                document.getElementById('set2-score').style.display = 'none';
+                document.getElementById('set3-score').style.display = 'none';
+            } else {
+                document.getElementById('sets-us').innerText    = `SETS: ${setsWon.us}`;
+                document.getElementById('sets-them').innerText  = `SETS: ${setsWon.them}`;
+                document.getElementById('set1-score').innerText = `${setScore[0].us}-${setScore[0].them}`;
+                document.getElementById('set2-score').innerText = `${setScore[1].us}-${setScore[1].them}`;
+                document.getElementById('set3-score').innerText = `${setScore[2].us}-${setScore[2].them}`;
+                document.getElementById('set2-score').style.display = '';
+                document.getElementById('set3-score').style.display = '';
+            }
 
             const statusEl = document.getElementById('match-status');
             if (matchOver) {
                 statusEl.innerText   = "Match Over";
                 statusEl.className   = "bg-white text-slate-900 text-[10px] px-3 py-1 rounded-full font-black uppercase mb-2";
+            } else if (scoringMethod === 'pro-set') {
+                statusEl.innerText   = isTiebreak ? `Tiebreak (${proSetTiebreakPoints}pt)` : "Pro Set";
+                statusEl.className   = "bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold uppercase mb-2";
             } else {
                 statusEl.innerText   = currentSetIndex === 2 ? "Match Tiebreak" : `Set ${currentSetIndex + 1}`;
                 statusEl.className   = "bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-bold uppercase mb-2";
@@ -1210,12 +1270,19 @@
             const ourLabel = cfg.ourCount === 2
                 ? `${playerNames.P1} / ${playerNames.P2}`
                 : playerNames.P1;
-            let csv = `\uFEFFTennis Match Report,Date: ${date},Opponent: ${school},Court: ${cfg.label} — ${cfg.desc}\n\n`;
+            const formatLabel = scoringMethod === 'pro-set' ? `,Format: Pro Set (${proSetTiebreakPoints}pt TB)` : '';
+            let csv = `﻿Tennis Match Report,Date: ${date},Opponent: ${school},Court: ${cfg.label} — ${cfg.desc}${formatLabel}\n\n`;
 
             csv += `Final Score Summary\n`;
-            csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
-            csv += `Our Team (${ourLabel}),${setsWon.us},${formatCsvCell(setScore[0].us+'-'+setScore[0].them)},${formatCsvCell(setScore[1].us+'-'+setScore[1].them)},${formatCsvCell(setScore[2].us+'-'+setScore[2].them)}\n`;
-            csv += `${school},${setsWon.them},${formatCsvCell(setScore[0].them+'-'+setScore[0].us)},${formatCsvCell(setScore[1].them+'-'+setScore[1].us)},${formatCsvCell(setScore[2].them+'-'+setScore[2].us)}\n\n`;
+            if (scoringMethod === 'pro-set') {
+                csv += `Team,Score\n`;
+                csv += `Our Team (${ourLabel}),${formatCsvCell(setScore[0].us+'-'+setScore[0].them)}\n`;
+                csv += `${school},${formatCsvCell(setScore[0].them+'-'+setScore[0].us)}\n\n`;
+            } else {
+                csv += `Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)\n`;
+                csv += `Our Team (${ourLabel}),${setsWon.us},${formatCsvCell(setScore[0].us+'-'+setScore[0].them)},${formatCsvCell(setScore[1].us+'-'+setScore[1].them)},${formatCsvCell(setScore[2].us+'-'+setScore[2].them)}\n`;
+                csv += `${school},${setsWon.them},${formatCsvCell(setScore[0].them+'-'+setScore[0].us)},${formatCsvCell(setScore[1].them+'-'+setScore[1].us)},${formatCsvCell(setScore[2].them+'-'+setScore[2].us)}\n\n`;
+            }
 
             csv += `Player Stats\n`;
             csv += `Player,Aces,Errors,Double-Faults,Winners\n`;
@@ -1545,9 +1612,14 @@
         // ── Save Match ────────────────────────────────────────────
         function showSaveMatchModal() {
             const opponent = document.getElementById('opp-school').value.trim() || 'Unknown Opponent';
-            const setStr   = setScore
-                .filter(s => s.us > 0 || s.them > 0)
-                .map(s => `${s.us}-${s.them}`).join(', ') || '0-0';
+            let setStr;
+            if (scoringMethod === 'pro-set') {
+                setStr = `${setScore[0].us}-${setScore[0].them} (Pro Set)`;
+            } else {
+                setStr = setScore
+                    .filter(s => s.us > 0 || s.them > 0)
+                    .map(s => `${s.us}-${s.them}`).join(', ') || '0-0';
+            }
             document.getElementById('save-match-desc').innerText = `vs. ${opponent} (${setStr})`;
             // Court selections carry forward from the live tracker — just sync the labels and button states
             const c9Label = document.getElementById('sm-c9-label');
@@ -1596,6 +1668,8 @@
                 result,
                 courtId,
                 courtLabel:  `${cfg.label} — ${cfg.desc}`,
+                scoringMethod,
+                ...(scoringMethod === 'pro-set' ? { proSetTiebreakPoints } : {}),
                 setsWon:     { ...setsWon },
                 setScores:   setScore.map(s => ({ ...s })),
                 courts:      courtsPlayed.length > 0 ? courts : null,
