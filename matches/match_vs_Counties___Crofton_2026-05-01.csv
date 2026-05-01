@@ -1,0 +1,105 @@
+﻿Tennis Match Report,Date: 2026-05-01,Opponent: Counties - Crofton,CourtId: C9,Court: Court 9 — Mixed Doubles 1
+
+Final Score Summary
+Team,Sets Won,Set 1,Set 2,Set 3 (10pt TB)
+Our Team (Mixed Doubles 1),2,="6-0",="6-0",="0-0"
+Counties - Crofton,0,="0-6",="0-6",="0-0"
+
+Court Results
+Court,Description,Type,Note,Result
+Court 1,Boys Singles 1,singles,,
+Court 2,Girls Singles 1,singles,,
+Court 3,Boys Singles 2,singles,,
+Court 4,Girls Singles 2,singles,,
+Court 5,Boys Doubles 1,doubles,,
+Court 6,Girls Doubles 1,doubles,,
+Court 7,Boys Doubles 2,doubles,,
+Court 8,Girls Doubles 2,doubles,,
+Court 9,Mixed Doubles 1,mixed,Brandon & Maddie,W
+
+Player Stats
+Player,Aces,Errors,Double-Faults,Winners
+Brandon,4,8,0,4
+Maddie,7,4,2,6
+OppBoy,1,16,5,3
+OppGirl,4,12,1,0
+
+Timeline
+Timestamp,Player,Action,Game Score,Set Score
+03:43:43 PM,OppGirl,Error,="15-0",="Set 1: 0-0"
+03:44:10 PM,OppBoy,Error,="30-0",="Set 1: 0-0"
+03:44:34 PM,Brandon,Ace,="40-0",="Set 1: 0-0"
+03:44:55 PM,Brandon,Ace,="Game Won",="Set 1: 1-0"
+03:45:59 PM,Maddie,Winner,="15-0",="Set 1: 1-0"
+03:46:23 PM,OppBoy,Double-Fault,="30-0",="Set 1: 1-0"
+03:46:55 PM,OppBoy,Double-Fault,="40-0",="Set 1: 1-0"
+03:47:22 PM,OppBoy,Error,="Game Won",="Set 1: 2-0"
+03:47:45 PM,Maddie,Ace,="15-0",="Set 1: 2-0"
+03:47:59 PM,Maddie,Ace,="30-0",="Set 1: 2-0"
+03:48:35 PM,Maddie,Double-Fault,="30-15",="Set 1: 2-0"
+03:49:06 PM,OppBoy,Error,="40-15",="Set 1: 2-0"
+03:49:23 PM,Brandon,Error,="40-30",="Set 1: 2-0"
+03:49:50 PM,Maddie,Double-Fault,="40-40",="Set 1: 2-0"
+03:50:05 PM,Maddie,Ace,="AD-40",="Set 1: 2-0"
+03:50:54 PM,OppBoy,Winner,="40-40",="Set 1: 2-0"
+03:51:11 PM,Maddie,Ace,="AD-40",="Set 1: 2-0"
+03:52:18 PM,Brandon,Winner,="Game Won",="Set 1: 3-0"
+03:54:15 PM,Brandon,Error,="0-15",="Set 1: 3-0"
+03:54:46 PM,OppGirl,Ace,="0-30",="Set 1: 3-0"
+03:55:22 PM,OppGirl,Error,="15-30",="Set 1: 3-0"
+03:55:46 PM,Maddie,Error,="15-40",="Set 1: 3-0"
+03:56:22 PM,Brandon,Winner,="30-40",="Set 1: 3-0"
+03:57:35 PM,Brandon,Winner,="40-40",="Set 1: 3-0"
+03:58:13 PM,OppBoy,Error,="AD-40",="Set 1: 3-0"
+03:58:31 PM,OppGirl,Ace,="40-40",="Set 1: 3-0"
+03:58:54 PM,OppGirl,Error,="AD-40",="Set 1: 3-0"
+03:59:29 PM,Maddie,Winner,="Game Won",="Set 1: 4-0"
+04:00:08 PM,Brandon,Error,="0-15",="Set 1: 4-0"
+04:00:35 PM,Maddie,Winner,="15-15",="Set 1: 4-0"
+04:01:04 PM,OppGirl,Error,="30-15",="Set 1: 4-0"
+04:01:35 PM,OppBoy,Error,="40-15",="Set 1: 4-0"
+04:02:01 PM,Brandon,Error,="40-30",="Set 1: 4-0"
+04:02:26 PM,Maddie,Error,="40-40",="Set 1: 4-0"
+04:02:44 PM,Maddie,Winner,="AD-40",="Set 1: 4-0"
+04:03:16 PM,OppBoy,Error,="Game Won",="Set 1: 5-0"
+04:04:55 PM,OppBoy,Error,="15-0",="Set 1: 5-0"
+04:05:20 PM,Maddie,Error,="15-15",="Set 1: 5-0"
+04:05:59 PM,OppBoy,Double-Fault,="30-15",="Set 1: 5-0"
+04:06:13 PM,OppBoy,Ace,="30-30",="Set 1: 5-0"
+04:06:31 PM,OppBoy,Error,="40-30",="Set 1: 5-0"
+04:06:56 PM,Maddie,Error,="40-40",="Set 1: 5-0"
+04:07:20 PM,OppBoy,Error,="AD-40",="Set 1: 5-0"
+04:08:06 PM,OppGirl,Error,="Game Won",="Set 1: 6-0"
+04:08:43 PM,OppGirl,Error,="15-0",="Set 2: 0-0"
+04:09:22 PM,OppBoy,Error,="30-0",="Set 2: 0-0"
+04:09:57 PM,Maddie,Ace,="40-0",="Set 2: 0-0"
+04:10:39 PM,OppBoy,Winner,="40-15",="Set 2: 0-0"
+04:10:57 PM,OppGirl,Error,="Game Won",="Set 2: 1-0"
+04:12:21 PM,OppGirl,Error,="15-0",="Set 2: 1-0"
+04:12:48 PM,OppGirl,Error,="30-0",="Set 2: 1-0"
+04:13:25 PM,OppGirl,Error,="40-0",="Set 2: 1-0"
+04:14:01 PM,Brandon,Winner,="Game Won",="Set 2: 2-0"
+04:14:39 PM,Brandon,Error,="0-15",="Set 2: 2-0"
+04:14:56 PM,Brandon,Error,="0-30",="Set 2: 2-0"
+04:15:19 PM,OppBoy,Error,="15-30",="Set 2: 2-0"
+04:15:45 PM,OppBoy,Error,="30-30",="Set 2: 2-0"
+04:15:59 PM,Brandon,Ace,="40-30",="Set 2: 2-0"
+04:16:20 PM,Brandon,Ace,="Game Won",="Set 2: 3-0"
+04:18:25 PM,OppGirl,Error,="15-0",="Set 2: 3-0"
+04:18:48 PM,OppBoy,Error,="30-0",="Set 2: 3-0"
+04:19:09 PM,Brandon,Error,="30-15",="Set 2: 3-0"
+04:19:47 PM,OppBoy,Double-Fault,="40-15",="Set 2: 3-0"
+04:20:17 PM,OppBoy,Double-Fault,="Game Won",="Set 2: 4-0"
+04:20:56 PM,Maddie,Ace,="15-0",="Set 2: 4-0"
+04:21:17 PM,OppBoy,Error,="30-0",="Set 2: 4-0"
+04:21:39 PM,OppBoy,Winner,="30-15",="Set 2: 4-0"
+04:22:06 PM,Maddie,Ace,="40-15",="Set 2: 4-0"
+04:22:30 PM,Maddie,Winner,="Game Won",="Set 2: 5-0"
+04:23:22 PM,OppGirl,Double-Fault,="15-0",="Set 2: 5-0"
+04:23:37 PM,OppGirl,Ace,="15-15",="Set 2: 5-0"
+04:24:08 PM,Brandon,Error,="15-30",="Set 2: 5-0"
+04:24:24 PM,OppBoy,Error,="30-30",="Set 2: 5-0"
+04:24:51 PM,OppGirl,Ace,="30-40",="Set 2: 5-0"
+04:25:14 PM,Maddie,Winner,="40-40",="Set 2: 5-0"
+04:25:35 PM,OppBoy,Error,="AD-40",="Set 2: 5-0"
+04:26:11 PM,OppGirl,Error,="Game Won",="Set 2: 6-0"
